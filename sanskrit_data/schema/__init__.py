@@ -61,6 +61,7 @@ Python data containers and utilities
 -  **Separate Database-specific elements through an interface**. We
    should be able to easily switch to a different database.
 - The schema class field contains the corresponding JSON schema. `An introductory video describing how such schema are to be read <https://www.youtube.com/watch?v=SHzD3f5nPt0&t=29s>`_.
+-  Slides `here <https://docs.google.com/presentation/d/1Wx1rxf5W5VpvSS4oGkGpp28WPPM57CUx41dGHC4ed80/edit#slide=id.p>`__
 
 Books and annotations
 ~~~~~~~~~~~~~~~~~~~~~

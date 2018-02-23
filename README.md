@@ -54,7 +54,6 @@ twine upload dist/* --skip-existing
 
 ## Document generation
 - Sphynx html docs can be generated with `cd docs; make html`
-  - Ignore warnings like: `missing attribute mentioned in :members: or __all__: module` ([explanation](https://trac.torproject.org/projects/tor/ticket/7507)). 
 - http://sanskrit-data.readthedocs.io/en/latest/sanskrit_data.html should automatically have good updated documentation - unless there are build errors.
 - To update UML diagrams, copy the outputs of the below to docs:
   - `pyreverse -ASmy -k -o png sanskrit_data.schema -p sanskrit_data_schema`
