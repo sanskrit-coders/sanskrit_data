@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = sanskrit_data
 SOURCEDIR     = .
-BUILDDIR      = build
+BUILDDIR      = sphinx_build
 
 # Put it first so that "make" without argument is like "make help".
 help:
