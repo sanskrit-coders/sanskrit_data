@@ -1,10 +1,8 @@
-import re
 import logging
-import os
 
+from sanskrit_data.db.interfaces import DbInterface
 from sanskrit_data.schema import books, ullekhanam
 from sanskrit_data.schema import common
-from sanskrit_data.db.interfaces import DbInterface
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -18,6 +16,7 @@ def run_command(cmd):
     # print "cmd:",cmd
     # print "type:",shellswitch
     shellval = False if (type(cmd) == type([])) else True
+    import subprocess
     result = subprocess.Popen(cmd, shell=shellval,
                               stderr=subprocess.PIPE,
                               stdout=subprocess.PIPE).communicate()
@@ -75,7 +74,6 @@ class BookPortionsInterface(DbInterface):
 
   def update_image_annotations(self, page, page_image):
     """return the page annotation with id = anno_id"""
-    from os import path
     known_annotations = page.get_targetting_entities(db_interface=self,
                                                      entity_type=ullekhanam.ImageAnnotation.get_wire_typeid())
     if len(known_annotations):

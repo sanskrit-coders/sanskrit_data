@@ -378,7 +378,7 @@ class TargetValidationError(Exception):
            "%s" % (self.targeting_obj, self.target_obj, str(self.allowed_types))
 
 
-# noinspection PyProtectedMember
+# noinspection PyProtectedMember,PyUnresolvedReferences
 class Target(JsonObject):
   schema = recursively_merge_json_schemas(JsonObject.schema, {
     "type": "object",
@@ -582,7 +582,12 @@ class UllekhanamJsonObject(JsonObject):
     self.source.validate(db_interface=db_interface, user=user)
     self.detect_illegal_takeover(db_interface=db_interface, user=user)
 
+  # noinspection PyTypeHints
   def get_targetting_entities(self, db_interface, entity_type=None):
+    """
+
+    :type entity_type: str
+    """
     # Alas, the below shows that no index is used:
     # curl -sg vedavaapi.org:5984/vedavaapi_ullekhanam_db/_explain -H content-type:application/json -d '{"selector": {"targets": {"$elemMatch": {"container_id": "4b9f454f5aa5414e82506525d015ac68"}}}}'|jq
     # TODO: Use index.

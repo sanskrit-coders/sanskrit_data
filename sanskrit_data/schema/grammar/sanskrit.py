@@ -9,7 +9,7 @@ from sanskrit_data.schema import common
 
 
 class RootAnalysis(common.JsonObject):
-  schema = common.recursively_merge_json_schemas(JsonObject.schema, ({
+  schema = common.recursively_merge_json_schemas(common.JsonObject.schema, ({
     "type": "object",
     "description": "Analysis of any root.",
     "properties": {
@@ -26,7 +26,7 @@ class RootAnalysis(common.JsonObject):
 
 
 class Praatipadika(common.JsonObject):
-  schema = common.recursively_merge_json_schemas(JsonObject.schema, ({
+  schema = common.recursively_merge_json_schemas(common.JsonObject.schema, ({
     "type": "object",
     "description": "A prAtipadika.",
     "properties": {

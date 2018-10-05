@@ -5,11 +5,11 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
+# To use a consistent encoding
+from os import path
+
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-# To use a consistent encoding
-from codecs import open
-from os import path
 
 here = path.abspath(path.dirname(__file__))
 
@@ -33,10 +33,10 @@ setup(
   long_description=long_description,
 
   # The project's main homepage.
-  url='https://github.com/vedavaapi/sanskrit_data',
+  url='https://github.com/sanskrit-coders/sanskrit_data',
 
   # Author details
-  author='Vedavaapi',
+  author='sanskrit-coders, vedavaapi',
   author_email='sanskrit-programmers@googlegroups.com',
 
   # Choose your license
