@@ -35,7 +35,7 @@ Similar libraries in various other programming languages are being built:
 - Install libraries for the particular database you want to access through the sanskrit_data.db interface (as needed): pymongo, cloudant (for couchdb).
 
 ## Usage
-- Please see the generated python sphynx docs in one of the following places:
+- Please see the generated python sphinx docs in one of the following places:
     - http://sanskrit-data.readthedocs.io
     - [project page](https://vedavaapi.github.io/sanskrit_data/build/html/sanskrit_data.html).
     - under docs/_build/html/index.html
@@ -53,7 +53,7 @@ twine upload dist/* --skip-existing
 ```
 
 ## Document generation
-- Sphynx html docs can be generated with `cd docs; make html`
+- sphinx html docs can be generated with `cd docs; make html`
 - http://sanskrit-data.readthedocs.io/en/latest/sanskrit_data.html should automatically have good updated documentation - unless there are build errors.
 - To update UML diagrams, copy the outputs of the below to docs:
   - `pyreverse -ASmy -k -o png sanskrit_data.schema -p sanskrit_data_schema`
