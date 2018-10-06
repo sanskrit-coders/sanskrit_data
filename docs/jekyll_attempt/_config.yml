@@ -78,6 +78,8 @@ description:
 #  line in _config.yml. It will appear in your document head meta (for
 #  Google search results) and in your feed.xml site description.
 
+timezone: America/Los_Angeles
+
 # needed for sitemap.xml file only
 url: http://sanskrit-coders.github.io
 baseurl: "/sanskrit-data" # the subpath of your site, e.g. /blog

@@ -1,0 +1,1 @@
+Here lie vestiges of a failed attempt at having a jekyll site  using  sanskrit-coders/sanskrit-documentation-theme . Problem was that the assests folder went missing, result in a visually unsatisfactory site.

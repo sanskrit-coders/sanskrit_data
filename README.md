@@ -38,9 +38,8 @@ Similar libraries in various other programming languages are being built:
 ## Usage
 - Please see the generated python sphinx docs in one of the following places:
     - http://sanskrit-data.readthedocs.io
-    - [project page](https://sanskrit-coders.github.io/sanskrit_data/sphinx_build/html/).
-    - under docs/sphinx_build/html/index.html
-    - under docs/sphinx_build/html/index.html
+    - [project page](https://sanskrit-coders.github.io/sanskrit_data/build/html/).
+    - under docs/build/html/index.html
 - Design considerations for data containers corresponding to the various submodules (such as books and annotations) are given below - or in the corresponding source files.
 
 # For contributors
