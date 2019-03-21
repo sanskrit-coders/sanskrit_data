@@ -170,12 +170,12 @@ class JsonObject(object):
         logging.error("Error reading " + filename + " : ".format(e))
         raise e
 
-  def dump_to_file(self, filename):
+  def dump_to_file(self, filename, floating_point_precision=None):
     try:
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
-        f.write(str(self))
+        f.write(self.__str__(floating_point_precision=floating_point_precision))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
       raise e
