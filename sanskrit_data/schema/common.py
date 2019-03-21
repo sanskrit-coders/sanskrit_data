@@ -70,6 +70,14 @@ def recursively_merge_json_schemas(a, b, json_path=""):
   else:
     return deepcopy(b)
 
+def round_floats(o, floating_point_precision):
+  if floating_point_precision is None:
+    return o
+  if isinstance(o, float): return round(o, floating_point_precision)
+  if isinstance(o, dict): return {k: round_floats(v, floating_point_precision=floating_point_precision) for k, v in o.items()}
+  if isinstance(o, (list, tuple)): return [round_floats(x, floating_point_precision=floating_point_precision) for x in o]
+  return o
+
 
 class JsonObject(object):
   """The base class of all Json-serializable data container classes, with many utility methods."""
@@ -220,8 +228,9 @@ class JsonObject(object):
           if isinstance(item, JsonObject):
             item.set_jsonpickle_type_recursively()
 
-  def __str__(self):
-    return json.dumps(self.to_json_map(), sort_keys=True, indent=2)
+
+  def __str__(self, floating_point_precision=None):
+    return json.dumps(round_floats(self.to_json_map(), floating_point_precision=floating_point_precision), sort_keys=True, indent=2)
 
   def set_from_dict(self, input_dict):
     if input_dict:
