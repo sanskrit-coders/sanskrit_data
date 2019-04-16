@@ -156,7 +156,15 @@ class JsonObject(object):
       return obj
 
   @classmethod
-  def read_from_file(cls, filename):
+  def read_from_file(cls, filename, name_to_json_class_index=None):
+    """
+    
+    :param filename: the file which should be read.
+    :param name_to_json_class_index: An optional dictionary mapping names to class objects. For example: {"Panchangam": annual.Panchangam}  
+    :return: 
+    """
+    if name_to_json_class_index is not None:
+      json_class_index.update(name_to_json_class_index)
     try:
       with open(filename) as fhandle:
         obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()))
