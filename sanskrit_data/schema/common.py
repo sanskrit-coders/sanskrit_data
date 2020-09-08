@@ -178,12 +178,12 @@ class JsonObject(object):
         logging.error("Error reading " + filename + " : ".format(e))
         raise e
 
-  def dump_to_file(self, filename, floating_point_precision=None):
+  def dump_to_file(self, filename, floating_point_precision=None, sort_keys=True):
     try:
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
-        f.write(self.__str__(floating_point_precision=floating_point_precision))
+        f.write(self.__str__(floating_point_precision=floating_point_precision, sort_keys=sort_keys))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
       raise e
@@ -237,8 +237,10 @@ class JsonObject(object):
             item.set_jsonpickle_type_recursively()
 
 
-  def __str__(self, floating_point_precision=None):
-    return json.dumps(round_floats(self.to_json_map(), floating_point_precision=floating_point_precision), sort_keys=True, indent=2)
+  def __str__(self, floating_point_precision=None, sort_keys=True):
+    json_map = self.to_json_map()
+    json_map_rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
+    return json.dumps(json_map_rounded, sort_keys=sort_keys, indent=2)
 
   def set_from_dict(self, input_dict):
     if input_dict:
@@ -255,7 +257,7 @@ class JsonObject(object):
   def set_from_id(self, db_interface, id):
     return self.set_from_dict(db_interface.find_by_id(id=id))
 
-  def to_json_map(self):
+  def to_json_map(self,floating_point_precision=None):
     """One convenient way of 'serializing' the object.
 
     So, the type must be properly set.
@@ -271,7 +273,10 @@ class JsonObject(object):
         json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         json_map[key] = value
-    return json_map
+    if floating_point_precision != None:
+      return round_floats(json_map, floating_point_precision=floating_point_precision)
+    else:
+      return json_map
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
