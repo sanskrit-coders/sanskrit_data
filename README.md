@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/sanskrit-coders/sanskrit_data.svg?branch=master)](https://travis-ci.org/sanskrit-coders/sanskrit_data)
+[![Documentation Status](https://readthedocs.org/projects/indic-transliteration/badge/?version=latest)](http://indic-transliteration.readthedocs.io/en/latest/?badge=latest)
+[![Actions Status](https://github.com/sanskrit-coders/sanskrit_data/workflows/Python%20package/badge.svg)](https://github.com/sanskrit-coders/sanskrit_data/actions)
+[![PyPI version](https://badge.fury.io/py/sanskrit_data.svg)](https://badge.fury.io/py/sanskrit_data)
+
+
 ## Introduction
 This module defines:
 
