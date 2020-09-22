@@ -21,13 +21,20 @@ try:
 except (IOError, ImportError):
   long_description = ''
 
+with open('requirements.txt', 'r') as f:
+  install_reqs = [
+    s for s in [
+      line.split('#', 1)[0].strip(' \t\n') for line in f
+    ] if s != ''
+  ]
+
 setup(
   name='sanskrit_data',
 
   # Versions should comply with PEP440.  For a discussion on single-sourcing
   # the version across setup.py and the project code, see
   # https://packaging.python.org/en/latest/single_source_version.html
-  version='0.4.9',
+  version='0.5.0',
 
   description='Standard and idiosyncratic schemata for text, annotation and user data, with a library of validation, (de-)serialization, a database interface and other utilities.',
   long_description=long_description,
@@ -82,23 +89,7 @@ setup(
   # your project is installed. For an analysis of "install_requires" vs pip's
   # requirements files see:
   # https://packaging.python.org/en/latest/requirements.html
-  install_requires=[
-    # JSON dependencies
-    'jsonschema',
-    'jsonpickle',
-    'bcrypt',
-    'yurl',
-
-    # Database dependencies
-    #
-    # Idea: Rather than automatically install unnecessary database access modules (users may only be interested in interacting with a particular database through the interface), we should let them install them separately.
-    # But this idea is rejected because this breaks automatic sphinx documentation at readthedocs.
-
-    'cloudant',
-    # 'couchdb-python', # But ALERT: we're using an unreleased version; a distribution does not exist for Py3.5 as of 20170828.
-    'pymongo', # Includes the bson package.
-    'six',
-  ],
+  install_requires=install_reqs,
 
   # List additional groups of dependencies here (e.g. development
   # dependencies). You can install these using the following syntax,

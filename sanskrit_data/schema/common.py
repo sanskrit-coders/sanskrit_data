@@ -242,6 +242,8 @@ class JsonObject(object):
     json_map_rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
     return json.dumps(json_map_rounded, sort_keys=sort_keys, indent=2)
 
+
+
   def set_from_dict(self, input_dict):
     if input_dict:
       for key, value in iter(input_dict.items()):
@@ -257,7 +259,7 @@ class JsonObject(object):
   def set_from_id(self, db_interface, id):
     return self.set_from_dict(db_interface.find_by_id(id=id))
 
-  def to_json_map(self,floating_point_precision=None):
+  def to_json_map(self, floating_point_precision=None):
     """One convenient way of 'serializing' the object.
 
     So, the type must be properly set.
@@ -277,6 +279,10 @@ class JsonObject(object):
       return round_floats(json_map, floating_point_precision=floating_point_precision)
     else:
       return json_map
+
+  def __eq__(self, other):
+    """Overrides the default implementation"""
+    return self.equals_ignore_id(other=other)
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
