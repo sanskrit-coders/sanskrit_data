@@ -2,7 +2,7 @@
 jsonschema
 jsonpickle
 bcrypt
-yurl
+yurl==1.0.0
 
 # Database dependencies
 #
