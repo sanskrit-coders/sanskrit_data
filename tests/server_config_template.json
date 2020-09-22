@@ -1,4 +1,0 @@
-{
-  "mongo_host" : "mongodb://someUser:somePw@localhost/",
-  "couchdb_host" : "http://username:password@host:port/"
-}

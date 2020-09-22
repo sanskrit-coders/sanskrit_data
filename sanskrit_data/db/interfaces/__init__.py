@@ -1,4 +1,5 @@
 import logging
+import string
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -113,3 +114,37 @@ class DbInterface(object):
     :param keys_json: A document that contains the field and value pairs where the field is the index key and the value describes the type of index for that field. For an ascending index on a field, specify a value of 1; for descending index, specify a value of -1.
     """
     pass
+
+
+class InMemoryDb(DbInterface):
+  def __init__(self, external_file_store=None):
+    self.external_file_store = external_file_store
+    self.init_external_file_store()
+    self.db = {}
+
+  # noinspection PyShadowingBuiltins
+  def find_by_id(self, id):
+    return self.db.get(id, None)
+
+  def find_one(self, find_filter):
+    pass
+
+  def find(self, find_filter):
+    pass
+
+  def update_doc(self, doc):
+    from pymongo import ReturnDocument
+    if not "_id" in doc:
+      doc["_id"] = get_random_string(8)
+    self.db[doc["_id"]] = doc
+    return doc
+
+  def delete_doc(self, doc_id):
+    self.db.pop(doc_id)
+
+
+def get_random_string(length):
+  letters = string.ascii_lowercase
+  import random
+  result_str = ''.join(random.choice(letters) for i in range(length))
+  print("Random string of length", length, "is:", result_str)
