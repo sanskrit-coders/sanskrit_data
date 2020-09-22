@@ -1,6 +1,6 @@
 # JSON dependencies
 jsonschema
-jsonpickle
+jsonpickle==1.4.1
 bcrypt
 yurl
 
