@@ -1,15 +1,15 @@
 # JSON dependencies
 jsonschema==3.2.0
-jsonpickle
-bcrypt
-yurl
+jsonpickle==1.4.1
+bcrypt==3.2.0
+yurl==1.0.0
 
 # Database dependencies
 #
 # Idea: Rather than automatically install unnecessary database access modules (users may only be interested in interacting with a particular database through the interface) we should let them install them separately.
 # But this idea is rejected because this breaks automatic sphinx documentation at readthedocs.
 
-cloudant
+cloudant==2.14.0
 # couchdb-python # But ALERT: were using an unreleased version; a distribution does not exist for Py3.5 as of 20170828.
 pymongo # Includes the bson package.
-six
+six==1.15.0
