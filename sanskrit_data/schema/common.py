@@ -280,6 +280,30 @@ class JsonObject(object):
     else:
       return json_map
 
+
+  def to_flat_json_map(self, floating_point_precision=None):
+    """One convenient way of 'serializing' the object.
+
+    So, the type must be properly set.
+    Many functions accept such json maps, just as they accept strings.
+    """
+    self.set_type_recursively()
+    json_map = {}
+    for key, value in iter(self.__dict__.items()):
+      # logging.debug("%s %s", key, value)
+      if isinstance(value, JsonObject):
+        inner = value.to_flat_json_map()
+        for key_inner, value_inner in iter(inner.items()):
+          json_map[".".join([key, key_inner])] = value_inner
+      elif isinstance(value, list):
+        json_map[key] = [item.to_flat_json_map() if isinstance(item, JsonObject) else item for item in value]
+      else:
+        json_map[key] = value
+    if floating_point_precision != None:
+      return round_floats(json_map, floating_point_precision=floating_point_precision)
+    else:
+      return json_map
+
   def __eq__(self, other):
     """Overrides the default implementation"""
     return self.equals_ignore_id(other=other)
@@ -305,6 +329,14 @@ class JsonObject(object):
     # logging.debug(other.__dict__)
     # logging.debug(dict2)
     return dict1 == dict2
+
+  def match_filter(self, find_filter):
+    flat_json_map = self.to_flat_json_map()
+    for key, value in enumerate(find_filter):
+      if flat_json_map.get(key, None) != value:
+        return False
+    return True
+
 
   def update_collection(self, db_interface, user=None):
     """Do JSON validation and write to database."""

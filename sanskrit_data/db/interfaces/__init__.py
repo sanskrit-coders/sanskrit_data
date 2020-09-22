@@ -47,6 +47,11 @@ class DbInterface(object):
   Accessing databases through implementations of this interface enables one to switch databases more easily down the line.
   """
 
+  def __init__(self, db_name_frontend, external_file_store):
+    self.db_name_frontend = db_name_frontend
+    self.external_file_store = external_file_store
+    self.init_external_file_store()
+
   def init_external_file_store(self):
     # Add filestores for use with the DB.
     if self.external_file_store is not None:
@@ -116,35 +121,8 @@ class DbInterface(object):
     pass
 
 
-class InMemoryDb(DbInterface):
-  def __init__(self, external_file_store=None):
-    self.external_file_store = external_file_store
-    self.init_external_file_store()
-    self.db = {}
-
-  # noinspection PyShadowingBuiltins
-  def find_by_id(self, id):
-    return self.db.get(id, None)
-
-  def find_one(self, find_filter):
-    pass
-
-  def find(self, find_filter):
-    pass
-
-  def update_doc(self, doc):
-    from pymongo import ReturnDocument
-    if not "_id" in doc:
-      doc["_id"] = get_random_string(8)
-    self.db[doc["_id"]] = doc
-    return doc
-
-  def delete_doc(self, doc_id):
-    self.db.pop(doc_id)
-
-
 def get_random_string(length):
   letters = string.ascii_lowercase
   import random
   result_str = ''.join(random.choice(letters) for i in range(length))
-  print("Random string of length", length, "is:", result_str)
+  return result_str
