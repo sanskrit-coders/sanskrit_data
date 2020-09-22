@@ -332,7 +332,7 @@ class JsonObject(object):
 
   def match_filter(self, find_filter):
     flat_json_map = self.to_flat_json_map()
-    for key, value in enumerate(find_filter):
+    for key, value in iter(find_filter.items()):
       if flat_json_map.get(key, None) != value:
         return False
     return True
