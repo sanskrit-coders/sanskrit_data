@@ -11,5 +11,5 @@ yurl
 
 cloudant
 # couchdb-python # But ALERT: were using an unreleased version; a distribution does not exist for Py3.5 as of 20170828.
-pymongo # Includes the bson package.
+pymongo==3.11.0 # Includes the bson package.
 six
