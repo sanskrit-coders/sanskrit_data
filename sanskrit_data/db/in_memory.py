@@ -17,7 +17,6 @@ class InMemoryDb(DbInterface):
           yield self.db[key]
 
   def update_doc(self, doc):
-    from pymongo import ReturnDocument
     if not "_id" in doc:
       doc["_id"] = get_random_string(8)
     self.db[doc["_id"]] = doc
