@@ -42,7 +42,7 @@ jobs:
         python -m pip install .
     - name: Build test
       run: |
-        python -c "import jyotisha"
+        python -c "import sanskrit_data"
     - name: Test with pytest
       run: |
         pip install pytest
