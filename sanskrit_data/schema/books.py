@@ -239,7 +239,7 @@ class BookPortion(UllekhanamJsonObject):
         for f in self.list_files(db_interface=db_interface):
           # noinspection PyArgumentList
           os.makedirs(name=export_dir_destination, exist_ok=True)
-          shutil.copyfile(f, os.path.join(export_dir_destination, os.path.basename(f)))
+          shutil.copyfile(os.path.join(self.get_external_storage_path(db_interface=db_interface), f), os.path.join(export_dir_destination, os.path.basename(f)))
 
     for sub_portion in book_node.children:
       sub_portion.content.dump_book_portion(export_dir=export_dir, db_interface=db_interface)

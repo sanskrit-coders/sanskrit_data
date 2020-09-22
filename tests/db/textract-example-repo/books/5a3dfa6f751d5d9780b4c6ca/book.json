@@ -1,0 +1,130 @@
+{
+  "children": [
+    {
+      "children": [],
+      "content": {
+        "_id": "5a3dfa6f751d5d9780b4c6cd",
+        "base_data": "image",
+        "jsonClass": "BookPortion",
+        "portion_class": "page",
+        "source": {
+          "id": "book_importer",
+          "jsonClass": "DataSource",
+          "source_type": "system_inferred"
+        },
+        "targets": [
+          {
+            "container_id": "5a3dfa6f751d5d9780b4c6ca",
+            "jsonClass": "BookPositionTarget",
+            "position": 1
+          }
+        ]
+      },
+      "jsonClass": "JsonObjectNode"
+    },
+    {
+      "children": [],
+      "content": {
+        "_id": "5a3dfa6f751d5d9780b4c6d0",
+        "base_data": "image",
+        "jsonClass": "BookPortion",
+        "portion_class": "page",
+        "source": {
+          "id": "book_importer",
+          "jsonClass": "DataSource",
+          "source_type": "system_inferred"
+        },
+        "targets": [
+          {
+            "container_id": "5a3dfa6f751d5d9780b4c6ca",
+            "jsonClass": "BookPositionTarget",
+            "position": 2
+          }
+        ]
+      },
+      "jsonClass": "JsonObjectNode"
+    },
+    {
+      "children": [],
+      "content": {
+        "_id": "5a3dfa6f751d5d9780b4c6d3",
+        "base_data": "image",
+        "jsonClass": "BookPortion",
+        "portion_class": "page",
+        "source": {
+          "id": "book_importer",
+          "jsonClass": "DataSource",
+          "source_type": "system_inferred"
+        },
+        "targets": [
+          {
+            "container_id": "5a3dfa6f751d5d9780b4c6ca",
+            "jsonClass": "BookPositionTarget",
+            "position": 3
+          }
+        ]
+      },
+      "jsonClass": "JsonObjectNode"
+    }
+  ],
+  "content": {
+    "_id": "5a3dfa6f751d5d9780b4c6ca",
+    "base_data": "image",
+    "creation_details": {
+      "authors": [
+        {
+          "jsonClass": "NamedEntity",
+          "names": [
+            {
+              "jsonClass": "Text",
+              "script_renderings": [
+                {
+                  "jsonClass": "ScriptRendering",
+                  "text": "Random Englishman"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "jsonClass": "CreationDetails",
+      "names": [
+        {
+          "jsonClass": "Text",
+          "script_renderings": [
+            {
+              "jsonClass": "ScriptRendering",
+              "text": "A dummy English book"
+            }
+          ]
+        }
+      ]
+    },
+    "jsonClass": "BookPortion",
+    "portion_class": "book",
+    "publication_details": {
+      "jsonClass": "PublicationDetails",
+      "publisher": {
+        "jsonClass": "NamedEntity",
+        "names": [
+          {
+            "jsonClass": "Text",
+            "script_renderings": [
+              {
+                "jsonClass": "ScriptRendering",
+                "text": "Random Publisher"
+              }
+            ]
+          }
+        ]
+      },
+      "release_time": "1999"
+    },
+    "source": {
+      "id": "book_importer",
+      "jsonClass": "DataSource",
+      "source_type": "system_inferred"
+    }
+  },
+  "jsonClass": "JsonObjectNode"
+}

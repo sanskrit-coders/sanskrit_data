@@ -21,13 +21,13 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
 # Used in the tests below
-class TestClass(common.JsonObject):
+class DummyClass(common.JsonObject):
     def __init__(self, field1):
         self.field1 = field1
 
 
 def test_serialization():
-    testObj = TestClass(field1=21)
+    testObj = DummyClass(field1=21)
     testObj.dump_to_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"))
-    testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index={"TestClass": TestClass})
+    testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index={"DummyClass": DummyClass})
     assert testObj.field1 == testObj2.field1

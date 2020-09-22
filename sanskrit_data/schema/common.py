@@ -333,7 +333,13 @@ class JsonObject(object):
   def match_filter(self, find_filter):
     flat_json_map = self.to_flat_json_map()
     for key, value in iter(find_filter.items()):
-      if flat_json_map.get(key, None) != value:
+      value_at_key = flat_json_map.get(key, None)
+      if isinstance(value_at_key, list) and isinstance(value, dict) and value.get("$elemMatch", None) is not None:
+        jo_values = [JsonObject.make_from_dict(item) for item in value_at_key]
+        filtered_values = [item for item in jo_values if item.match_filter(value.get("$elemMatch", None))]
+        if len(filtered_values) == 0:
+          return False
+      elif value_at_key != value:
         return False
     return True
 
@@ -714,7 +720,8 @@ class JsonObjectNode(JsonObject):
 
   def validate(self, db_interface=None, user=None):
     # Note that the below recursively validates ALL members (including content and children).
-    super(JsonObjectNode, self).validate(db_interface=db_interface, user=user)
+    # Disabling validation of self as per https://github.com/Julian/jsonschema/issues/740
+    # super(JsonObjectNode, self).validate(db_interface=db_interface, user=user)
     self.validate_children_types()
 
   @classmethod
