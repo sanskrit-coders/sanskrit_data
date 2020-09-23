@@ -9,12 +9,12 @@ import logging
 import sys
 from copy import deepcopy
 
-from jsonschema.exceptions import best_match
-from six import string_types
 import jsonpickle
 import jsonschema
-from jsonschema import ValidationError
 from jsonschema import SchemaError
+from jsonschema import ValidationError
+from jsonschema.exceptions import best_match
+from six import string_types
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -51,6 +51,33 @@ def check_list_item_types(some_list, allowed_types):
   return not (False in check_class_results)
 
 
+def assert_dict_equality(x, y, floating_point_precision=None):
+  assert sorted(x.keys()) == sorted(y.keys()), (sorted(x.keys()), sorted(y.keys()))
+  x = round_floats(tuples_to_lists(x), floating_point_precision=floating_point_precision)
+  y = round_floats(tuples_to_lists(y), floating_point_precision=floating_point_precision)
+  for key, value in iter(x.items()):
+    other_value = y.get(key, None)
+    if isinstance(value, dict):
+      try:
+        assert_dict_equality(value, other_value)
+      except AssertionError:
+        logging.error(key)
+        raise
+    elif isinstance(value, list):
+      assert len(value) == len(other_value), (key, value, other_value)
+      for index, item in enumerate(value):
+        if isinstance(value, dict):
+          try:
+            item.assert_equals(other_value[index])
+          except AssertionError:
+            logging.error("key: %s, index: %s", key, index)
+            raise
+        else:
+          assert item == other_value[index], (key, index, item, other_value[index])
+    else:
+      assert value == other_value, (key, value, other_value, type(value))
+
+
 def recursively_merge_json_schemas(a, b, json_path=""):
   assert a.__class__ == b.__class__, str(a.__class__) + " vs " + str(b.__class__)
 
@@ -79,11 +106,18 @@ def round_floats(o, floating_point_precision):
   return o
 
 
+def tuples_to_lists(o):
+  if isinstance(o, dict): return {k: tuples_to_lists(v) for k, v in o.items()}
+  if isinstance(o, (list, tuple)): return [tuples_to_lists(x) for x in o]
+  return o
+
+
 class JsonObject(object):
   """The base class of all Json-serializable data container classes, with many utility methods."""
 
   schema = {
     "type": "object",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
       TYPE_FIELD: {
         "type": "string",
@@ -274,10 +308,11 @@ class JsonObject(object):
       # logging.debug("%s %s", key, value)
       if isinstance(value, JsonObject):
         json_map[key] = value.to_json_map()
-      elif isinstance(value, list):
+      elif isinstance(value, (list, tuple)):
         json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         json_map[key] = value
+    json_map = tuples_to_lists(json_map)
     if floating_point_precision != None:
       return round_floats(json_map, floating_point_precision=floating_point_precision)
     else:
@@ -298,10 +333,11 @@ class JsonObject(object):
         inner = value.to_flat_json_map()
         for key_inner, value_inner in iter(inner.items()):
           json_map[".".join([key, key_inner])] = value_inner
-      elif isinstance(value, list):
+      elif isinstance(value, (tuple, list)):
         json_map[key] = [item.to_flat_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         json_map[key] = value
+    json_map = tuples_to_lists(json_map)
     if floating_point_precision != None:
       return round_floats(json_map, floating_point_precision=floating_point_precision)
     else:
@@ -688,7 +724,7 @@ class JsonObjectNode(JsonObject):
   """
   schema = recursively_merge_json_schemas(
     JsonObject.schema, {
-      "id": "JsonObjectNode",
+      "$id": "JsonObjectNode",
       "properties": {
         TYPE_FIELD: {
           "enum": ["JsonObjectNode"]
@@ -722,9 +758,7 @@ class JsonObjectNode(JsonObject):
       child.validate_children_types()
 
   def validate(self, db_interface=None, user=None):
-    # Note that the below recursively validates ALL members (including content and children).
-    # Disabling validation of self as per https://github.com/Julian/jsonschema/issues/740
-    # super(JsonObjectNode, self).validate(db_interface=db_interface, user=user)
+    super(JsonObjectNode, self).validate(db_interface=db_interface, user=user)
     self.validate_children_types()
 
   @classmethod
