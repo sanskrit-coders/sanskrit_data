@@ -275,12 +275,11 @@ class JsonObject(object):
         json_map[key] = value.to_json_map()
       elif isinstance(value, (list, tuple)):
         json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
-      elif isinstance(value, dict):
-        json_map[key] = collection_helper.stringify_keys(collection_helper.remove_none_keys(value))
       else:
         json_map[key] = value
     json_map = tuples_to_lists(json_map)
-    # assert remove_none_keys(json_map) == json_map
+    # Sometimes values may be ugly dicts.
+    json_map = collection_helper.stringify_keys(collection_helper.remove_none_keys(json_map))
     if floating_point_precision is not None:
       rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
       return rounded

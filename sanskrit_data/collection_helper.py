@@ -12,17 +12,17 @@ def remove_none_keys(dict_x):
   return dict_y
 
 
-def stringify_keys(dict_x):
-  dict_y = {}
-  for key, value in iter(dict_x.items()):
-    if isinstance(value, dict):
-      value = stringify_keys(value)
-    if not isinstance(key, str):
-      dict_y[str(key)] = value
-    else:
-      dict_y[key] = value
-  return dict_y
-
+def stringify_keys(x):
+  if isinstance(x, dict):
+    dict_y = {}
+    for key, value in iter(x.items()):
+      dict_y[str(key)] = stringify_keys(value)
+    return dict_y
+  elif isinstance(x, (tuple, list)):
+    return [stringify_keys(y) for y in x]
+  else:
+    return x
+    
 
 
 
