@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import json
 import logging
+import numbers
 import sys
 from copy import deepcopy
 
@@ -15,6 +16,8 @@ from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
 from six import string_types
+
+from sanskrit_data.collection_helper import remove_none_keys, round_floats, tuples_to_lists
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -51,33 +54,6 @@ def check_list_item_types(some_list, allowed_types):
   return not (False in check_class_results)
 
 
-def assert_dict_equality(x, y, floating_point_precision=None):
-  assert sorted(x.keys()) == sorted(y.keys()), (sorted(x.keys()), sorted(y.keys()))
-  x = round_floats(tuples_to_lists(x), floating_point_precision=floating_point_precision)
-  y = round_floats(tuples_to_lists(y), floating_point_precision=floating_point_precision)
-  for key, value in iter(x.items()):
-    other_value = y.get(key, None)
-    if isinstance(value, dict):
-      try:
-        assert_dict_equality(value, other_value)
-      except AssertionError:
-        logging.error(key)
-        raise
-    elif isinstance(value, list):
-      assert len(value) == len(other_value), (key, value, other_value)
-      for index, item in enumerate(value):
-        if isinstance(value, dict):
-          try:
-            item.assert_equals(other_value[index])
-          except AssertionError:
-            logging.error("key: %s, index: %s", key, index)
-            raise
-        else:
-          assert item == other_value[index], (key, index, item, other_value[index])
-    else:
-      assert value == other_value, (key, value, other_value, type(value))
-
-
 def recursively_merge_json_schemas(a, b, json_path=""):
   assert a.__class__ == b.__class__, str(a.__class__) + " vs " + str(b.__class__)
 
@@ -96,20 +72,6 @@ def recursively_merge_json_schemas(a, b, json_path=""):
     return list(set(a + b))
   else:
     return deepcopy(b)
-
-def round_floats(o, floating_point_precision):
-  if floating_point_precision is None:
-    return o
-  if isinstance(o, float): return round(o, floating_point_precision)
-  if isinstance(o, dict): return {k: round_floats(v, floating_point_precision=floating_point_precision) for k, v in o.items()}
-  if isinstance(o, (list, tuple)): return [round_floats(x, floating_point_precision=floating_point_precision) for x in o]
-  return o
-
-
-def tuples_to_lists(o):
-  if isinstance(o, dict): return {k: tuples_to_lists(v) for k, v in o.items()}
-  if isinstance(o, (list, tuple)): return [tuples_to_lists(x) for x in o]
-  return o
 
 
 class JsonObject(object):
@@ -305,6 +267,10 @@ class JsonObject(object):
     self.set_type_recursively()
     json_map = {}
     for key, value in iter(self.__dict__.items()):
+      if key is None:
+        continue
+      if isinstance(key, numbers.Number):
+        key = str(key)  
       # logging.debug("%s %s", key, value)
       if isinstance(value, JsonObject):
         json_map[key] = value.to_json_map()
@@ -312,36 +278,16 @@ class JsonObject(object):
         json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         json_map[key] = value
+    json_map = remove_none_keys(json_map)
     json_map = tuples_to_lists(json_map)
-    if floating_point_precision != None:
-      return round_floats(json_map, floating_point_precision=floating_point_precision)
+    assert remove_none_keys(json_map) == json_map
+    if floating_point_precision is not None:
+      rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
+      assert remove_none_keys(rounded) == rounded
+      return rounded
     else:
       return json_map
 
-
-  def to_flat_json_map(self, floating_point_precision=None):
-    """One convenient way of 'serializing' the object.
-
-    So, the type must be properly set.
-    Many functions accept such json maps, just as they accept strings.
-    """
-    self.set_type_recursively()
-    json_map = {}
-    for key, value in iter(self.__dict__.items()):
-      # logging.debug("%s %s", key, value)
-      if isinstance(value, JsonObject):
-        inner = value.to_flat_json_map()
-        for key_inner, value_inner in iter(inner.items()):
-          json_map[".".join([key, key_inner])] = value_inner
-      elif isinstance(value, (tuple, list)):
-        json_map[key] = [item.to_flat_json_map() if isinstance(item, JsonObject) else item for item in value]
-      else:
-        json_map[key] = value
-    json_map = tuples_to_lists(json_map)
-    if floating_point_precision != None:
-      return round_floats(json_map, floating_point_precision=floating_point_precision)
-    else:
-      return json_map
 
   def __eq__(self, other):
     """Overrides the default implementation"""
