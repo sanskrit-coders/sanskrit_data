@@ -27,7 +27,10 @@ def stringify_keys(dict_x):
 
 
 def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):
-  assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
+  try:
+    assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
+  except AssertionError:
+    raise
   x = round_floats(tuples_to_lists(x), floating_point_precision=floating_point_precision)
   y = round_floats(tuples_to_lists(y), floating_point_precision=floating_point_precision)
   for key, value in iter(x.items()):
@@ -39,7 +42,11 @@ def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):
         logging.error(key)
         raise
     elif isinstance(value, list):
-      assert len(value) == len(other_value), (key_trace+[key], value, other_value)
+      try:
+        assert len(value) == len(other_value), (key_trace+[key], value, other_value)
+      except AssertionError:
+        logging.error("key: %s", key)
+        raise
       for index, item in enumerate(value):
         if isinstance(value, dict):
           try:
@@ -48,9 +55,17 @@ def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):
             logging.error("key: %s, index: %s", key, index)
             raise
         else:
-          assert item == other_value[index], (key_trace+[key, index], item, other_value[index])
+          try:
+              assert item == other_value[index], (key_trace+[key, index], item, other_value[index])
+          except AssertionError:
+            logging.error("key: %s, index: %s", key, index)
+            raise
     else:
-      assert value == other_value, (key_trace+[key], value, other_value, type(value))
+      try:
+        assert value == other_value, (key_trace+[key], value, other_value, type(value))
+      except AssertionError:
+        logging.error("key: %s", key)
+        raise
 
 
 def round_floats(o, floating_point_precision):
