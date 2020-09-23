@@ -29,5 +29,5 @@ class DummyClass(common.JsonObject):
 def test_serialization():
     testObj = DummyClass(field1=21)
     testObj.dump_to_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"))
-    testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index={"DummyClass": DummyClass})
+    testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index_extra={"DummyClass": DummyClass})
     assert testObj.field1 == testObj2.field1

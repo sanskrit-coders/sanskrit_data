@@ -156,21 +156,24 @@ class JsonObject(object):
       return obj
 
   @classmethod
-  def read_from_file(cls, filename, name_to_json_class_index=None):
+  def read_from_file(cls, filename, name_to_json_class_index_extra=None):
     """
     
     :param filename: the file which should be read.
-    :param name_to_json_class_index: An optional dictionary mapping names to class objects. For example: {"Panchangam": annual.Panchangam}  
+    :param name_to_json_class_index_extra: An optional dictionary mapping names to class objects. For example: {"Panchangam": annual.Panchangam}  
     :return: 
     """
-    if name_to_json_class_index is not None:
-      json_class_index.update(name_to_json_class_index)
+    if name_to_json_class_index_extra is not None:
+      json_class_index.update(name_to_json_class_index_extra)
     try:
       with open(filename) as fhandle:
         obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()))
         return obj
     except Exception as e:
       try:
+        import traceback
+        traceback.print_exc()
+        logging.info("Could not load as a dict. May be a list of dicts. Trying..")
         with open(filename) as fhandle:
           obj = cls.make_from_dict_list(jsonpickle.decode(fhandle.read()))
           return obj
