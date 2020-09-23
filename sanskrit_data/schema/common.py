@@ -17,6 +17,7 @@ from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
 from six import string_types
 
+from sanskrit_data import collection_helper
 from sanskrit_data.collection_helper import remove_none_keys, round_floats, tuples_to_lists
 
 logging.basicConfig(
@@ -267,8 +268,6 @@ class JsonObject(object):
     self.set_type_recursively()
     json_map = {}
     for key, value in iter(self.__dict__.items()):
-      if key is None:
-        continue
       if isinstance(key, numbers.Number):
         key = str(key)  
       # logging.debug("%s %s", key, value)
@@ -276,14 +275,14 @@ class JsonObject(object):
         json_map[key] = value.to_json_map()
       elif isinstance(value, (list, tuple)):
         json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
+      elif isinstance(value, dict):
+        json_map[key] = collection_helper.stringify_keys(collection_helper.remove_none_keys(value))
       else:
         json_map[key] = value
-    json_map = remove_none_keys(json_map)
     json_map = tuples_to_lists(json_map)
-    assert remove_none_keys(json_map) == json_map
+    # assert remove_none_keys(json_map) == json_map
     if floating_point_precision is not None:
       rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
-      assert remove_none_keys(rounded) == rounded
       return rounded
     else:
       return json_map

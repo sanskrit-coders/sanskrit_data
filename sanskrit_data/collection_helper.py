@@ -1,4 +1,5 @@
 import logging
+import numbers
 
 
 def remove_none_keys(dict_x):
@@ -9,6 +10,20 @@ def remove_none_keys(dict_x):
     if key is not None:
       dict_y[key] = value
   return dict_y
+
+
+def stringify_keys(dict_x):
+  dict_y = {}
+  for key, value in iter(dict_x.items()):
+    if isinstance(value, dict):
+      value = stringify_keys(value)
+    if not isinstance(key, str):
+      dict_y[str(key)] = value
+    else:
+      dict_y[key] = value
+  return dict_y
+
+
 
 
 def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):
