@@ -33,8 +33,8 @@ While designing the JSON **data-model**:
 -  Type-hint in JSON should be jsonClass (a language-independent name
    we've picked).
 -  Try to avoid field-names which conflict with programming language
-   keywords. (Eg. Prefer "source\_type" to "type").
--  In general, use camelCase or underscore\_case for field names - both
+   keywords. (Eg. Prefer "source\\_type" to "type").
+-  In general, use camelCase or underscore\\_case for field names - both
    are fine. Where romanized (potentially mixed case) sanskrit words are
    used, the latter is the superior convention.
 -  Where field names and values are to be automatically rendered into

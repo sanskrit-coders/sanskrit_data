@@ -22,8 +22,6 @@ def stringify_keys(x):
     return [stringify_keys(y) for y in x]
   else:
     return x
-    
-
 
 
 def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):

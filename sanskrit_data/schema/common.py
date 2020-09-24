@@ -313,7 +313,7 @@ class JsonObject(object):
     return dict1 == dict2
 
   def match_filter(self, find_filter):
-    flat_json_map = self.to_flat_json_map()
+    flat_json_map = collection_helper.flatten_dict(self.to_json_map())
     for key, value in iter(find_filter.items()):
       value_at_key = flat_json_map.get(key, None)
       if isinstance(value_at_key, list) and isinstance(value, dict) and value.get("$elemMatch", None) is not None:
