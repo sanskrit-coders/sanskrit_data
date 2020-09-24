@@ -238,9 +238,8 @@ class JsonObject(object):
 
 
   def __str__(self, floating_point_precision=None, sort_keys=True):
-    json_map = self.to_json_map()
-    json_map_rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
-    return json.dumps(json_map_rounded, sort_keys=sort_keys, indent=2)
+    json_map = self.to_json_map(floating_point_precision=floating_point_precision)
+    return json.dumps(json_map, sort_keys=sort_keys, indent=2)
 
 
 
