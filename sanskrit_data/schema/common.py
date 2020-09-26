@@ -6,7 +6,6 @@ from __future__ import absolute_import
 
 import json
 import logging
-import numbers
 import sys
 from copy import deepcopy
 
@@ -18,7 +17,7 @@ from jsonschema.exceptions import best_match
 from six import string_types
 
 from sanskrit_data import collection_helper
-from sanskrit_data.collection_helper import remove_none_keys, round_floats, tuples_to_lists
+from sanskrit_data.collection_helper import round_floats, tuples_to_lists
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -178,7 +177,7 @@ class JsonObject(object):
         logging.error("Error reading " + filename + " : ".format(e))
         raise e
 
-  def dump_to_file(self, filename, floating_point_precision=None, sort_keys=True):
+  def dump_to_file(self, filename: str, floating_point_precision: int = None, sort_keys: bool = True) -> None:
     try:
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -265,20 +264,11 @@ class JsonObject(object):
     Many functions accept such json maps, just as they accept strings.
     """
     self.set_type_recursively()
-    json_map = {}
-    for key, value in iter(self.__dict__.items()):
-      if isinstance(key, numbers.Number):
-        key = str(key)  
-      # logging.debug("%s %s", key, value)
-      if isinstance(value, JsonObject):
-        json_map[key] = value.to_json_map()
-      elif isinstance(value, (list, tuple)):
-        json_map[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
-      else:
-        json_map[key] = value
+    json_map = collection_helper.dictify(self)
     json_map = tuples_to_lists(json_map)
     # Sometimes values may be ugly dicts.
-    json_map = collection_helper.stringify_keys(collection_helper.remove_none_keys(json_map))
+    json_map = collection_helper.remove_none_keys(json_map)
+    json_map = collection_helper.stringify_keys(json_map)
     if floating_point_precision is not None:
       rounded = round_floats(json_map, floating_point_precision=floating_point_precision)
       return rounded

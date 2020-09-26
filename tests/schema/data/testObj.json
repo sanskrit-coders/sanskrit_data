@@ -1,4 +1,9 @@
 {
   "field1": 21,
+  "field2": {
+    "2.1": {
+      "field1": 1
+    }
+  },
   "jsonClass": "DummyClass"
 }

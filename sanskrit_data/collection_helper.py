@@ -1,5 +1,4 @@
 import logging
-import numbers
 
 
 def remove_none_keys(dict_x):
@@ -20,6 +19,22 @@ def stringify_keys(x):
     return dict_y
   elif isinstance(x, (tuple, list)):
     return [stringify_keys(y) for y in x]
+  else:
+    return x
+
+
+def dictify(x):
+  from sanskrit_data.schema.common import JsonObject
+  if isinstance(x, dict):
+    dict_y = {}
+    for key, value in iter(x.items()):
+      dict_y[key] = dictify(value)
+    return dict_y
+  elif isinstance(x, (tuple, list)):
+    return [dictify(y) for y in x]
+  elif isinstance(x, JsonObject):
+    import copy
+    return dictify(copy.deepcopy(x.__dict__))
   else:
     return x
 

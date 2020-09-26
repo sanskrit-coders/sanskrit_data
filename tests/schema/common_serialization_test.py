@@ -7,10 +7,8 @@ from __future__ import absolute_import
 
 import logging
 import os
-import pytest
-import jsonschema
-import tests
-from sanskrit_data.schema import ullekhanam, common, books, users
+
+from sanskrit_data.schema import common
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -22,12 +20,20 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 # Used in the tests below
 class DummyClass(common.JsonObject):
+    def __init__(self, field1, field2):
+        super(DummyClass, self).__init__()
+        self.field1 = field1
+        self.field2 = field2
+
+class DummyClass2(common.JsonObject):
     def __init__(self, field1):
+        super(DummyClass2, self).__init__()
         self.field1 = field1
 
 
 def test_serialization():
-    testObj = DummyClass(field1=21)
+    testObj = DummyClass(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
     testObj.dump_to_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"))
     testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index_extra={"DummyClass": DummyClass})
     assert testObj.field1 == testObj2.field1
+    assert testObj.__str__() == testObj2.__str__()
