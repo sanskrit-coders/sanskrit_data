@@ -7,6 +7,7 @@ from __future__ import absolute_import
 
 import logging
 import os
+import sys
 
 from sanskrit_data.schema import common
 
@@ -29,6 +30,9 @@ class DummyClass2(common.JsonObject):
     def __init__(self, field1):
         super(DummyClass2, self).__init__()
         self.field1 = field1
+
+# Essential for depickling to work.
+common.update_json_class_index(sys.modules[__name__])
 
 
 def test_serialization():
