@@ -99,8 +99,8 @@ class JsonObject(object):
     """Defines *our* canonical way of constructing a JSON object from a dict.
 
     All other deserialization methods should use this.
-
     Note that this assumes that json_class_index is populated properly!
+    Note that constructor is NOT called and variable initializations therein won't take effect.
 
     - ``from sanskrit_data.schema import *`` before using this should take care of it.
 
