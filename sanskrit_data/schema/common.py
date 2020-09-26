@@ -31,7 +31,7 @@ TYPE_FIELD = "jsonClass"
 json_class_index = {}
 
 
-def update_json_class_index(module_in):
+def update_json_class_index(module_in, json_class_index=json_class_index):
   """Call this function to enable (de)serialization.
 
   Usage example: common.update_json_class_index(sys.modules[__name__]).
@@ -224,6 +224,10 @@ class JsonObject(object):
         for item in value:
           if isinstance(item, JsonObject):
             item.set_type_recursively()
+      elif isinstance(value, dict):
+        for key_inner, value_inner in value.items():
+          if isinstance(value_inner, JsonObject):
+            value_inner.set_type_recursively()
 
   def set_jsonpickle_type_recursively(self):
     self.set_type()
@@ -234,6 +238,10 @@ class JsonObject(object):
         for item in value:
           if isinstance(item, JsonObject):
             item.set_jsonpickle_type_recursively()
+      elif isinstance(value, dict):
+        for key_inner, value_inner in enumerate(value.items()):
+          if isinstance(value_inner, JsonObject):
+            value_inner.set_jsonpickle_type_recursively()
 
 
   def __str__(self, floating_point_precision=None, sort_keys=True):

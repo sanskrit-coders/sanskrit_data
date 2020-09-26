@@ -10,6 +10,7 @@ import os
 import sys
 
 from sanskrit_data.schema import common
+from sanskrit_data.schema.common import JsonObject
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -21,23 +22,38 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 # Used in the tests below
 class DummyClass(common.JsonObject):
-    def __init__(self, field1, field2):
+    def __init__(self):
         super(DummyClass, self).__init__()
-        self.field1 = field1
-        self.field2 = field2
+        self.field1 = None
+        self.field2 = None
+    
+    @classmethod
+    def from_details(self, field1=None, field2=None):
+      x = DummyClass()
+      x.field1 = field1
+      x.field2 = field2
+      return x
 
 class DummyClass2(common.JsonObject):
     def __init__(self, field1):
         super(DummyClass2, self).__init__()
         self.field1 = field1
 
-# Essential for depickling to work.
-common.update_json_class_index(sys.modules[__name__])
+json_class_index = {}
+common.update_json_class_index(sys.modules[__name__], json_class_index=json_class_index)
+logging.debug("json_class_index " + json_class_index.__str__())
 
 
-def test_serialization():
-    testObj = DummyClass(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
-    testObj.dump_to_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"))
-    testObj2 = testObj.read_from_file(filename=os.path.join(TEST_DATA_DIR, "testObj.json"), name_to_json_class_index_extra={"DummyClass": DummyClass})
+def test_serialization(caplog):
+    caplog.set_level(logging.DEBUG)
+    tmp_file_path = os.path.join(TEST_DATA_DIR, "test_round_trip_serialization.json.local")
+    testObj = DummyClass.from_details(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
+    testObj.dump_to_file(filename=tmp_file_path)
+    testObj2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index)
     assert testObj.field1 == testObj2.field1
     assert testObj.__str__() == testObj2.__str__()
+    assert isinstance(testObj2.field2["2.1"], DummyClass2)
+
+    tmp_file_path = os.path.join(TEST_DATA_DIR, "test_none_value.json")
+    testObj2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index)
+    # assert testObj2.field2 == None

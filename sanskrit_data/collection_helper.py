@@ -11,6 +11,33 @@ def remove_none_keys(dict_x):
   return dict_y
 
 
+def remove_dict_none_values(value, from_dictified_objects_only=False):
+  """
+  Recursively remove all None values from dictionaries and lists, and returns
+  the result as a new dictionary or list.
+  """
+  def get_non_none_valued_dict(value):
+    return {
+      key: remove_dict_none_values(value=val, from_dictified_objects_only=from_dictified_objects_only)
+      for key, val in value.items()
+      if val is not None
+    }
+    
+  if isinstance(value, list):
+    return [remove_dict_none_values(value=x, from_dictified_objects_only=from_dictified_objects_only) for x in value if x is not None]
+  elif isinstance(value, dict):
+    if not from_dictified_objects_only:
+      return get_non_none_valued_dict(value)
+    else:
+      from sanskrit_data.schema import common
+      if common.JSONPICKLE_TYPE_FIELD in dict:
+        return get_non_none_valued_dict(value)
+      else:
+        return value
+  else:
+    return value
+
+
 def stringify_keys(x):
   if isinstance(x, dict):
     dict_y = {}
