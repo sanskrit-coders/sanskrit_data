@@ -90,12 +90,28 @@ class JsonObject(object):
     "required": [TYPE_FIELD]
   }
 
+  DEFAULT_TO_NONE__DEFAULT = True
+
+  def __getattr__(self, name):
+    if name == "default_to_none":
+      return JsonObject.DEFAULT_TO_NONE__DEFAULT
+    if self.default_to_none:
+      return None
+    else:
+      # Default behaviour
+      raise AttributeError
+
+  # We override this because messing with __getattr__ has resulted in deepcopy breakage.
+  def __deepcopy__(self, memo):
+    return self.make_from_dict(self.to_json_map())
+
   def __init__(self):
     # Dont do: self._id = None . You'll get "_id": null when the object is serialized.
     self.set_type()
+    self.default_to_none = JsonObject.DEFAULT_TO_NONE__DEFAULT
 
   @classmethod
-  def make_from_dict(cls, input_dict):
+  def make_from_dict(cls, input_dict, **kwargs):
     """Defines *our* canonical way of constructing a JSON object from a dict.
 
     All other deserialization methods should use this.
@@ -129,6 +145,8 @@ class JsonObject(object):
     recursively_set_jsonpickle_type(dict_without_id)
 
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
+    for key, value in kwargs.items():
+      setattr(new_obj, key, value)
     # logging.debug(new_obj.__class__)
     if _id:
       new_obj._id = str(_id)
@@ -152,7 +170,7 @@ class JsonObject(object):
       return obj
 
   @classmethod
-  def read_from_file(cls, filename, name_to_json_class_index_extra=None):
+  def read_from_file(cls, filename, name_to_json_class_index_extra=None, **kwargs):
     """
     
     :param filename: the file which should be read.
@@ -163,7 +181,7 @@ class JsonObject(object):
       json_class_index.update(name_to_json_class_index_extra)
     try:
       with open(filename) as fhandle:
-        obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()))
+        obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()), **kwargs)
         return obj
     except Exception as e:
       try:
@@ -273,6 +291,8 @@ class JsonObject(object):
     """
     self.set_type_recursively()
     json_map = collection_helper.dictify(self)
+    if self.default_to_none:
+      json_map = collection_helper.remove_dict_none_values(json_map)
     json_map = tuples_to_lists(json_map)
     # Sometimes values may be ugly dicts.
     json_map = collection_helper.remove_none_keys(json_map)

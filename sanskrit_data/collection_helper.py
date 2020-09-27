@@ -24,7 +24,7 @@ def remove_dict_none_values(value, from_dictified_objects_only=False):
     }
     
   if isinstance(value, list):
-    return [remove_dict_none_values(value=x, from_dictified_objects_only=from_dictified_objects_only) for x in value if x is not None]
+    return [remove_dict_none_values(value=x, from_dictified_objects_only=from_dictified_objects_only) for x in value]
   elif isinstance(value, dict):
     if not from_dictified_objects_only:
       return get_non_none_valued_dict(value)
@@ -61,7 +61,7 @@ def dictify(x):
     return [dictify(y) for y in x]
   elif isinstance(x, JsonObject):
     import copy
-    return dictify(copy.deepcopy(x.__dict__))
+    return dictify(x.__dict__)
   else:
     return x
 
