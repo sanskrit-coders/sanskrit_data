@@ -11,12 +11,13 @@ from copy import deepcopy
 
 import jsonpickle
 import jsonschema
+import toml
 from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
 from six import string_types
 
-from sanskrit_data import collection_helper
+from sanskrit_data import collection_helper, file_helper
 from sanskrit_data.collection_helper import round_floats, tuples_to_lists
 
 logging.basicConfig(
@@ -181,7 +182,12 @@ class JsonObject(object):
       json_class_index.update(name_to_json_class_index_extra)
     try:
       with open(filename) as fhandle:
-        obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()), **kwargs)
+        format = file_helper.deduce_format_from_filename(filename)
+        if "json" in format:
+          input_dict = jsonpickle.decode(fhandle.read())
+        elif "toml" in format:
+          input_dict = toml.loads(fhandle.read())
+        obj = cls.make_from_dict(input_dict=input_dict, **kwargs)
         return obj
     except Exception as e:
       try:
@@ -200,7 +206,8 @@ class JsonObject(object):
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
-        f.write(self.__str__(floating_point_precision=floating_point_precision, sort_keys=sort_keys))
+        format = file_helper.deduce_format_from_filename(filename)
+        f.write(self.__str__(format=format, floating_point_precision=floating_point_precision, sort_keys=sort_keys))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
       raise e
@@ -262,9 +269,12 @@ class JsonObject(object):
             value_inner.set_jsonpickle_type_recursively()
 
 
-  def __str__(self, floating_point_precision=None, sort_keys=True):
+  def __str__(self, format="json", floating_point_precision=None, sort_keys=True):
     json_map = self.to_json_map(floating_point_precision=floating_point_precision)
-    return json.dumps(json_map, sort_keys=sort_keys, indent=2)
+    if format == "json":
+      return json.dumps(json_map, sort_keys=sort_keys, indent=2)
+    else:
+      return toml.dumps(json_map)
 
 
 

@@ -51,8 +51,9 @@ common.update_json_class_index(sys.modules[__name__], json_class_index=json_clas
 logging.debug("json_class_index " + json_class_index.__str__())
 
 
-def test_serialization(caplog):
+def test_json_serialization(caplog):
     caplog.set_level(logging.DEBUG)
+
     tmp_file_path = os.path.join(TEST_DATA_DIR, "test_round_trip_serialization.json.local")
     test_obj = DummyClass.from_details(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
     test_obj.dump_to_file(filename=tmp_file_path)
@@ -60,6 +61,14 @@ def test_serialization(caplog):
     assert test_obj.field1 == test_obj_2.field1
     assert test_obj.__str__() == test_obj_2.__str__()
     assert isinstance(test_obj_2.field2["2.1"], DummyClass2)
+
+    tmp_file_path = os.path.join(TEST_DATA_DIR, "test_round_trip_serialization.toml.local")
+    test_obj = DummyClass.from_details(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
+    test_obj.dump_to_file(filename=tmp_file_path)
+    test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index)
+    assert test_obj.field1 == test_obj_2.field1
+    assert test_obj.__str__() == test_obj_2.__str__()
+
 
 
 def test_return_none_by_default(caplog):
@@ -70,8 +79,6 @@ def test_return_none_by_default(caplog):
         assert test_obj_2.field2 == None
     test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, default_to_none=True)
     assert test_obj_2.field2 == None
-
-
 
 
 def test_serialization_omit_nones(caplog):

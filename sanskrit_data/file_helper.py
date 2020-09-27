@@ -2,6 +2,8 @@ import logging
 import os
 import subprocess
 import urllib.request
+from collections import OrderedDict
+from urllib.error import HTTPError
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -53,6 +55,17 @@ def list_dirtree(rootdir):
   return all_data
 
 
+def deduce_format_from_filename(filename):
+  format_hint = ".".join(filename.split(".")[1:])
+  format_map = OrderedDict()
+  format_map["json"] = "json"
+  format_map["toml"] = "toml"
+  for key, value in format_map.items():
+    if key in format_hint:
+      return value
+  return None
+
+
 def run_command(cmd):
   try:
     # shellswitch = isinstance(cmd, collections.Sequence)
@@ -77,5 +90,5 @@ def check(url):
   try:
     urllib.request.urlopen(url)
     return True
-  except urllib.request.HTTPError:
+  except HTTPError:
     return False
