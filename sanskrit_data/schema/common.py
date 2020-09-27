@@ -327,14 +327,14 @@ class JsonObject(object):
   def update_collection(self, db_interface, user=None):
     """Do JSON validation and write to database."""
     self.set_type_recursively()
-    if hasattr(self, "schema"):
+    if getattr(self, "schema", None) is not None:
       self.validate(db_interface=db_interface, user=user)
     updated_doc = db_interface.update_doc(self.to_json_map())
     updated_obj = JsonObject.make_from_dict(updated_doc)
     return updated_obj
 
   def validate_deletion(self, db_interface, user=None):
-    if not hasattr(self, "_id"):
+    if getattr(self, "_id", None) is None:
       raise ValidationError("_id not present!")
 
   def delete_in_collection(self, db_interface, user=None):
@@ -514,22 +514,22 @@ class DataSource(JsonObject):
     return source
 
   def infer_by_admin(self, db_interface=None, user=None):
-    if not hasattr(self, "by_admin"):
+    if getattr(self, "by_admin", None) is None:
       # source_type is a compulsory attribute, because that validation is done separately and a suitable error is thrown.
-      if hasattr(self, "source_type") and self.source_type == "user_supplied":
+      if getattr(self, "source_type", None) is not None and self.source_type == "user_supplied":
         if user is not None and db_interface is not None:
-          if not hasattr(self, "id") or self.id in user.get_user_ids():
+          if getattr(self, "id", None) is None or self.id in user.get_user_ids():
             self.by_admin = user.is_admin(service=db_interface.db_name_frontend)
 
   def setup_source(self, db_interface=None, user=None):
-    if not hasattr(self, "source_type"):
+    if getattr(self, "source_type", None) is None:
       self.source_type = "user_supplied" if (user is not None and user.is_human()) else "system_inferred"
-    if not hasattr(self, "id") and user is not None and user.get_first_user_id_or_none() is not None:
+    if getattr(self, "id", None) is None and user is not None and user.get_first_user_id_or_none() is not None:
       self.id = user.get_first_user_id_or_none()
 
   def is_id_impersonated_by_non_admin(self, db_interface=None, user=None):
     """A None user is assumed to be a valid authorized backend script."""
-    if hasattr(self, "id") and user is not None and db_interface is not None:
+    if getattr(self, "id", None) is not None and user is not None and db_interface is not None:
       if self.id not in user.get_user_ids() and not user.is_admin(service=db_interface.db_name_frontend):
         return True
     return False
@@ -537,20 +537,20 @@ class DataSource(JsonObject):
   def validate(self, db_interface=None, user=None):
     if self.is_id_impersonated_by_non_admin(db_interface=db_interface, user=user):
       raise ValidationError("Impersonation by %(id_1)s as %(id_2)s not allowed for this user." % dict(id_1=user.get_first_user_id_or_none(), id_2=self.id))
-    if "user" in self.source_type and not hasattr(self, "id"):
+    if "user" in self.source_type and getattr(self, "id", None) is None:
       raise ValidationError("User id compulsary for user sources.")
-    if hasattr(self, "source_type") and self.source_type == "system_inferred":
+    if getattr(self, "source_type", None) is not None and self.source_type == "system_inferred":
       if user is not None and user.is_human() and not user.is_admin(service=db_interface.db_name_frontend):
         raise ValidationError("Impersonation by %(id_1)s as a bot not allowed for this user." % dict(id_1=user.get_first_user_id_or_none()))
     super(DataSource, self).validate(db_interface=db_interface, user=user)
 
     # Only if the writer user is an admin or None, allow by_admin to be set to true (even when the admin is impersonating another user).
-    if hasattr(self, "by_admin") and self.by_admin:
+    if getattr(self, "by_admin", None) is not None and self.by_admin:
       if user is not None and db_interface is not None and not user.is_admin(service=db_interface.db_name_frontend):
         raise ValidationError("Impersonation by %(id_1)s of %(id_2)s not allowed for this user." % dict(id_1=user.get_first_user_id_or_none(), id_2=self.id))
 
       # source_type is a compulsory attribute, because that validation is done separately and a suitable error is thrown.
-      if hasattr(self, "source_type") and self.source_type != "user_supplied":
+      if getattr(self, "source_type", None) is not None and self.source_type != "user_supplied":
         if user is not None and db_interface is not None:
           raise ValidationError("non user_supplied source_type cannot be an admin.")
 
@@ -581,17 +581,17 @@ class UllekhanamJsonObject(JsonObject):
 
   def is_editable_by_others(self):
     # noinspection PyTypeChecker
-    return self.editable_by_others if hasattr(self, "editable_by_others") else self.schema["properties"]["editable_by_others"]["default"]
+    return self.editable_by_others if getattr(self, "editable_by_others", None) is not None else self.schema["properties"]["editable_by_others"]["default"]
 
   def __init__(self):
     super(UllekhanamJsonObject, self).__init__()
     self.source = DataSource()
 
   def detect_illegal_takeover(self, db_interface=None, user=None):
-    if hasattr(self, "_id") and db_interface is not None:
+    if getattr(self, "_id", None) is not None and db_interface is not None:
       old_obj = JsonObject.from_id(id=self._id, db_interface=db_interface)
       if old_obj is not None and not old_obj.is_editable_by_others():
-        if hasattr(self.source, "id") and hasattr(old_obj.source, "id") and self.source.id != old_obj.source.id:
+        if getattr(self.source, "id", None) is not None and getattr(old_obj.source, "id", None) is not None and self.source.id != old_obj.source.id:
           if user is not None and not user.is_admin(service=db_interface.db_name_frontend):
             raise ValidationError("{} cannot take over {}'s annotation for editing or deleting under a non-admin user {}'s authority".format(self.source.id, old_obj.source.id, user.get_first_user_id_or_none))
 
@@ -618,7 +618,7 @@ class UllekhanamJsonObject(JsonObject):
 
   def validate_targets(self, db_interface):
     allowed_types = self.get_allowed_target_classes()
-    targets_to_check = self.targets if hasattr(self, "targets") else []
+    targets_to_check = self.targets if getattr(self, "targets", None) is not None else []
     Target.check_target_classes(targets_to_check=targets_to_check, db_interface=db_interface, allowed_types=allowed_types, targeting_obj=self)
 
 
@@ -723,7 +723,7 @@ class JsonObjectNode(JsonObject):
     self.content = self.content.update_collection(db_interface=db_interface, user=user)
     for child in self.children:
       # Initialize the target array if it does not already exist.
-      if (not hasattr(child.content, "targets")) or child.content.targets is None or len(child.content.targets) == 0:
+      if (getattr(child.content, "targets", None) is None) or child.content.targets is None or len(child.content.targets) == 0:
         child.content.targets = [child.content.target_class()]
 
       assert len(child.content.targets) == 1
@@ -731,10 +731,10 @@ class JsonObjectNode(JsonObject):
       child.update_collection(db_interface=db_interface, user=user)
 
   def affected_user_ids(self):
-    if not hasattr(self, "content"):
+    if getattr(self, "content", None) is None:
       raise ValidationError("This is a node with no content! Not allowed.")
     user_ids = []
-    if hasattr(self.content.source, "id"):
+    if getattr(self.content.source, "id", None) is not None:
       user_ids = [self.content.source.id]
     for child in self.children:
       user_ids = user_ids + child.affected_user_ids()
@@ -742,7 +742,7 @@ class JsonObjectNode(JsonObject):
 
   def validate_deletion(self, db_interface, user=None):
     # Deliberately not calling super.validate_deletion - the node does not exist in the database.
-    if not hasattr(self, "content"):
+    if getattr(self, "content", None) is None:
       raise ValidationError("This is a node with no content! Not allowed.")
     self.content.validate_deletion_ignoring_targetters(db_interface=db_interface, user=user)
     for child in self.children:
@@ -775,7 +775,7 @@ class JsonObjectNode(JsonObject):
 
     Limitation: Only useful with direct members.
     """
-    if hasattr(self.content, field_name):
+    if getattr(self.content, field_name, None) is not None:
       delattr(self.content, field_name)
     for child in self.children:
       child.recursively_delete_attr(field_name)
@@ -886,7 +886,7 @@ def get_schemas(module_in):
   import inspect
   schemas = {}
   for name, obj in inspect.getmembers(module_in):
-    if inspect.isclass(obj) and hasattr(obj, "schema"):
+    if inspect.isclass(obj) and getattr(obj, "schema", None) is not None:
       schemas[name] = obj.schema
   return schemas
 

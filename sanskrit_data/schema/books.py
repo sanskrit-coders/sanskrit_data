@@ -210,9 +210,9 @@ class BookPortion(UllekhanamJsonObject):
   def get_path(self, db_interface):
     external_file_store = db_interface.external_file_store
     import os
-    if hasattr(self, "path") and self.path is not None:
+    if getattr(self, "path", None) is not None:
       return os.path.join(external_file_store, self.path)
-    elif hasattr(self, "targets") and self.targets is not None and len(self.targets) > 0:
+    elif getattr(self, "targets", None) is not None and len(self.targets) > 0:
       container_book = self.targets[0]
       return os.path.join(external_file_store, container_book.get_path(db_interface=db_interface), self._id)
 
@@ -230,7 +230,7 @@ class BookPortion(UllekhanamJsonObject):
       # Just dump the file.
       import shutil
       # TODO: Remove this branch once data migration is done.
-      if hasattr(self, "path"):
+      if getattr(self, "path", None) is not None:
         src_file = self.path
         # noinspection PyArgumentList
         os.makedirs(name=export_dir_destination, exist_ok=True)

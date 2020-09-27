@@ -101,7 +101,7 @@ class AuthenticationInfo(JsonObject):
     return obj
 
   def set_bcrypt_password(self):
-    if hasattr(self, "auth_secret_plain") and self.auth_secret_plain != "" and self.auth_secret_plain is not None:
+    if getattr(self, "auth_secret_plain", None) is not None and self.auth_secret_plain != "":
       # noinspection PyAttributeOutsideInit
       self.auth_secret_bcrypt = hash_password(plain_password=self.auth_secret_plain)
       delattr(self, "auth_secret_plain")
@@ -110,7 +110,7 @@ class AuthenticationInfo(JsonObject):
     super(AuthenticationInfo, self).validate_schema()
     from jsonschema import ValidationError
     self.set_bcrypt_password()
-    if hasattr(self, "auth_secret_hashed") and (self.auth_secret_hashed == "" or self.auth_secret_hashed is None):
+    if getattr(self, "auth_secret_hashed", None) is not None and (self.auth_secret_hashed == ""):
       raise ValidationError(message="auth_secret_hashed should be non-empty if present.")
 
 
@@ -156,7 +156,7 @@ class User(JsonObject):
       import re
       return re.match("(?:" + pattern + r")\Z", string, flags=flags)
 
-    if hasattr(self, "permissions"):
+    if getattr(self, "permissions", None) is not None:
       for permission in self.permissions:
         if fullmatch(pattern=permission.service, string=service):
           for permitted_action in permission.actions:
@@ -168,7 +168,7 @@ class User(JsonObject):
     return self.check_permission(service=service, action="admin")
 
   def is_human(self):
-    return hasattr(self, "user_type") and self.user_type == "human"
+    return getattr(self, "user_type", None) is not None and self.user_type == "human"
 
   def get_user_ids(self):
     return [str(auth_info) for auth_info in self.authentication_infos]
