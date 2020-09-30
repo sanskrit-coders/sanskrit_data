@@ -50,18 +50,18 @@ def stringify_keys(x):
     return x
 
 
-def dictify(x):
+def dictify(x, included_protected_attributes=["_id"]):
   from sanskrit_data.schema.common import JsonObject
   if isinstance(x, dict):
     dict_y = {}
     for key, value in iter(x.items()):
-      dict_y[key] = dictify(value)
+      if not key.startswith("_") or key in included_protected_attributes:
+        dict_y[key] = dictify(value, included_protected_attributes=included_protected_attributes)
     return dict_y
   elif isinstance(x, (tuple, list)):
-    return [dictify(y) for y in x]
+    return [dictify(y, included_protected_attributes=included_protected_attributes) for y in x]
   elif isinstance(x, JsonObject):
-    import copy
-    return dictify(x.__dict__)
+    return dictify(x.__dict__, included_protected_attributes=included_protected_attributes)
   else:
     return x
 
