@@ -75,6 +75,32 @@ def recursively_merge_json_schemas(a, b, json_path=""):
     return deepcopy(b)
 
 
+def _set_json_object_type(obj):
+  if isinstance(obj, JsonObject):
+    obj.set_type()
+    for key, value in iter(obj.__dict__.items()):
+      _set_json_object_type(value)
+  elif isinstance(obj, (list, tuple)):
+    for item in obj:
+      _set_json_object_type(item)
+  elif isinstance(obj, dict):
+    for key_inner, value_inner in obj.items():
+      _set_json_object_type(value_inner)
+
+
+def _set_jsonpickle_type_recursively(obj, json_class_index):
+  """Translates jsonClass fields to py/object"""
+  if isinstance(obj, dict):
+    wire_type = obj.pop(TYPE_FIELD, None)
+    if wire_type:
+      obj[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type].__module__ + "." + wire_type
+    for key, value in iter(obj.items()):
+      _set_jsonpickle_type_recursively(obj=value, json_class_index=json_class_index)
+  elif isinstance(obj, (list, tuple)):
+    for item in obj:
+      _set_jsonpickle_type_recursively(obj=item, json_class_index=json_class_index)
+
+
 class JsonObject(object):
   """The base class of all Json-serializable data container classes, with many utility methods."""
 
@@ -130,20 +156,7 @@ class JsonObject(object):
     dict_without_id = deepcopy(input_dict)
     _id = dict_without_id.pop("_id", None)
 
-    def recursively_set_jsonpickle_type(some_dict):
-      """Translates jsonClass fields to py/object"""
-      wire_type = some_dict.pop(TYPE_FIELD, None)
-      if wire_type:
-        some_dict[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type].__module__ + "." + wire_type
-      for key, value in iter(some_dict.items()):
-        if isinstance(value, dict):
-          recursively_set_jsonpickle_type(value)
-        elif isinstance(value, list):
-          for item in value:
-            if isinstance(item, dict):
-              recursively_set_jsonpickle_type(item)
-
-    recursively_set_jsonpickle_type(dict_without_id)
+    _set_jsonpickle_type_recursively(obj=dict_without_id, json_class_index=json_class_index)
 
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
     for key, value in kwargs.items():
@@ -151,7 +164,7 @@ class JsonObject(object):
     # logging.debug(new_obj.__class__)
     if _id:
       new_obj._id = str(_id)
-    new_obj.set_type_recursively()
+    _set_json_object_type(new_obj)
     return new_obj
 
   @classmethod
@@ -240,25 +253,11 @@ class JsonObject(object):
     setattr(self, TYPE_FIELD, self.__class__.get_wire_typeid())
     # setattr(self, TYPE_FIELD, self.__class__.__name__)
 
-  def set_type_recursively(self):
-    self.set_type()
-    for key, value in iter(self.__dict__.items()):
-      if isinstance(value, JsonObject):
-        value.set_type_recursively()
-      elif isinstance(value, list):
-        for item in value:
-          if isinstance(item, JsonObject):
-            item.set_type_recursively()
-      elif isinstance(value, dict):
-        for key_inner, value_inner in value.items():
-          if isinstance(value_inner, JsonObject):
-            value_inner.set_type_recursively()
-
   def set_jsonpickle_type_recursively(self):
     self.set_type()
     for key, value in iter(self.__dict__.items()):
       if isinstance(value, JsonObject):
-        value.set_type_recursively()
+        _set_json_object_type(value)
       elif isinstance(value, list):
         for item in value:
           if isinstance(item, JsonObject):
@@ -268,15 +267,12 @@ class JsonObject(object):
           if isinstance(value_inner, JsonObject):
             value_inner.set_jsonpickle_type_recursively()
 
-
   def __str__(self, format="json", floating_point_precision=None, sort_keys=True):
     json_map = self.to_json_map(floating_point_precision=floating_point_precision)
     if format == "json":
       return json.dumps(json_map, sort_keys=sort_keys, indent=2)
     else:
       return toml.dumps(json_map)
-
-
 
   def set_from_dict(self, input_dict):
     if input_dict:
@@ -299,7 +295,7 @@ class JsonObject(object):
     So, the type must be properly set.
     Many functions accept such json maps, just as they accept strings.
     """
-    self.set_type_recursively()
+    _set_json_object_type(self)
     json_map = collection_helper.dictify(self)
     if self.default_to_none:
       json_map = collection_helper.remove_dict_none_values(json_map)
@@ -356,7 +352,7 @@ class JsonObject(object):
 
   def update_collection(self, db_interface, user=None):
     """Do JSON validation and write to database."""
-    self.set_type_recursively()
+    _set_json_object_type(self)
     if getattr(self, "schema", None) is not None:
       self.validate(db_interface=db_interface, user=user)
     updated_doc = db_interface.update_doc(self.to_json_map())
