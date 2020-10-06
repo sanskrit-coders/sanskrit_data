@@ -137,6 +137,9 @@ class JsonObject(object):
     self.set_type()
     self.default_to_none = JsonObject.DEFAULT_TO_NONE__DEFAULT
 
+  def __hash__(self):
+    return hash(self.__str__())
+
   @classmethod
   def make_from_dict(cls, input_dict, **kwargs):
     """Defines *our* canonical way of constructing a JSON object from a dict.
