@@ -136,3 +136,21 @@ def flatten_dict(o):
     return flattened_dict
   if isinstance(o, (list, tuple)): return [flatten_dict(x) for x in o]
   return o
+
+
+def tree_maker(leaves, path_fn):
+  tree = {}
+  def _insert_to_tree(path, leaf):
+    segments = [x for x in path.split("/") if x != ""]
+    node = tree
+    for segment in segments:
+      parent = node
+      node = node.get(segment, {})
+      parent[segment] = node
+    parent[segment] = leaf
+  
+  for leaf in leaves:
+    path = path_fn(leaf)
+    _insert_to_tree(leaf=leaf, path=path)
+  
+  return tree
