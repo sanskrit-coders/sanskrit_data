@@ -223,7 +223,7 @@ class JsonObject(object):
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
         format = file_helper.deduce_format_from_filename(filename)
-        f.write(self.__str__(format=format, floating_point_precision=floating_point_precision, sort_keys=sort_keys))
+        f.write(self.to_string(format=format, floating_point_precision=floating_point_precision, sort_keys=sort_keys))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
       raise e
@@ -270,12 +270,15 @@ class JsonObject(object):
           if isinstance(value_inner, JsonObject):
             value_inner.set_jsonpickle_type_recursively()
 
-  def __str__(self, format="json", floating_point_precision=None, sort_keys=True):
+  def to_string(self, format="json", floating_point_precision=None, sort_keys=True):
     json_map = self.to_json_map(floating_point_precision=floating_point_precision)
     if format == "json":
       return json.dumps(json_map, sort_keys=sort_keys, indent=2)
     else:
       return toml.dumps(json_map)
+
+  def __str__(self):
+    return self.to_string(format="json")
 
   def set_from_dict(self, input_dict):
     if input_dict:
@@ -315,7 +318,7 @@ class JsonObject(object):
 
   def __eq__(self, other):
     """Overrides the default implementation"""
-    return self.equals_ignore_id(other=other)
+    return isinstance(other, JsonObject) and self.equals_ignore_id(other=other)
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
