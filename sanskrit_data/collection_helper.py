@@ -55,6 +55,8 @@ def dictify(x, included_protected_attributes=["_id"]):
   if isinstance(x, dict):
     dict_y = {}
     for key, value in iter(x.items()):
+      if key is None:
+        continue
       if not key.startswith("_") or key in included_protected_attributes:
         dict_y[key] = dictify(value, included_protected_attributes=included_protected_attributes)
     return dict_y
