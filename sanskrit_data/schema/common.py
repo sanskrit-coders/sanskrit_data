@@ -320,7 +320,7 @@ class JsonObject(object):
 
   def __eq__(self, other):
     """Overrides the default implementation"""
-    return super(JsonObject, self).__eq__(other) or (isinstance(other, JsonObject) and self.equals_ignore_id(other=other))
+    return id(self) == id(other) or (isinstance(other, JsonObject) and self.equals_ignore_id(other=other))
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
