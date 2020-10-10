@@ -47,7 +47,7 @@ class DummyClass2(common.JsonObject):
         self.field1 = field1
 
 json_class_index = {}
-common.update_json_class_index(sys.modules[__name__], json_class_index=json_class_index)
+common.update_json_class_index(sys.modules[__name__], json_class_index_in=json_class_index)
 logging.debug("json_class_index " + json_class_index.__str__())
 
 

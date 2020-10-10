@@ -32,15 +32,17 @@ TYPE_FIELD = "jsonClass"
 json_class_index = {}
 
 
-def update_json_class_index(module_in, json_class_index=json_class_index):
+def update_json_class_index(module_in, json_class_index_in=None):
   """Call this function to enable (de)serialization.
 
   Usage example: common.update_json_class_index(sys.modules[__name__]).
   """
+  if json_class_index_in is None:
+    json_class_index_in = json_class_index
   import inspect
   for name, obj in inspect.getmembers(module_in):
     if inspect.isclass(obj):
-      json_class_index[name] = obj
+      json_class_index_in[name] = obj
 
 
 def check_class(obj, allowed_types):
@@ -318,7 +320,7 @@ class JsonObject(object):
 
   def __eq__(self, other):
     """Overrides the default implementation"""
-    return super(JsonObject, self).__eq__(other) or isinstance(other, JsonObject) and self.equals_ignore_id(other=other)
+    return super(JsonObject, self).__eq__(other) or (isinstance(other, JsonObject) and self.equals_ignore_id(other=other))
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
