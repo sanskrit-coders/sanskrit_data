@@ -122,9 +122,9 @@ class JsonObject(object):
   DEFAULT_TO_NONE__DEFAULT = True
 
   def __getattr__(self, name):
-    if name == "default_to_none":
+    if name == "_default_to_none":
       return JsonObject.DEFAULT_TO_NONE__DEFAULT
-    if self.default_to_none:
+    if self._default_to_none:
       return None
     else:
       # Default behaviour
@@ -137,7 +137,7 @@ class JsonObject(object):
   def __init__(self):
     # Dont do: self._id = None . You'll get "_id": null when the object is serialized.
     self.set_type()
-    self.default_to_none = JsonObject.DEFAULT_TO_NONE__DEFAULT
+    self._default_to_none = JsonObject.DEFAULT_TO_NONE__DEFAULT
 
   def __hash__(self):
     return hash(self.__str__())
@@ -305,7 +305,7 @@ class JsonObject(object):
     """
     _set_json_object_type(self)
     json_map = collection_helper.dictify(self)
-    if self.default_to_none:
+    if self._default_to_none:
       json_map = collection_helper.remove_dict_none_values(json_map)
     json_map = tuples_to_lists(json_map)
     # Sometimes values may be ugly dicts.

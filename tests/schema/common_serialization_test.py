@@ -75,16 +75,16 @@ def test_return_none_by_default(caplog):
     caplog.set_level(logging.DEBUG)
     tmp_file_path = os.path.join(TEST_DATA_DIR, "test_none_value.json")
     with pytest.raises(AttributeError):
-        test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, default_to_none=False)
+        test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, _default_to_none=False)
         assert test_obj_2.field2 == None
-    test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, default_to_none=True)
+    test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, _default_to_none=True)
     assert test_obj_2.field2 == None
 
 
 def test_serialization_omit_nones(caplog):
     caplog.set_level(logging.DEBUG)
     tmp_file_path = os.path.join(TEST_DATA_DIR, "test_none_value.json")
-    test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, default_to_none=True)
+    test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index, _default_to_none=True)
     test_obj_2.field3 = None
     test_obj_2_map = test_obj_2.to_json_map()
     assert "field3" not in test_obj_2_map
