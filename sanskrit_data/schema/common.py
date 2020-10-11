@@ -304,7 +304,7 @@ class JsonObject(object):
     Many functions accept such json maps, just as they accept strings.
     """
     _set_json_object_type(self)
-    json_map = collection_helper.dictify(self)
+    json_map = collection_helper.dictify(self, omit_none_values=self._default_to_none)
     if self._default_to_none:
       json_map = collection_helper.remove_dict_none_values(json_map)
     json_map = tuples_to_lists(json_map)

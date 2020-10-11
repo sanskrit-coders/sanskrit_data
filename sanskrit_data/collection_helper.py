@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 
 def remove_none_keys(dict_x):
@@ -50,7 +51,9 @@ def stringify_keys(x):
     return x
 
 
-def dictify(x, included_protected_attributes=["_id"]):
+def dictify(x, included_protected_attributes=None, omit_none_values=True):
+  if included_protected_attributes is None:
+    included_protected_attributes = ["_id"]
   from sanskrit_data.schema.common import JsonObject
   if isinstance(x, dict):
     dict_y = {}
@@ -58,64 +61,49 @@ def dictify(x, included_protected_attributes=["_id"]):
       if key is None:
         continue
       if not key.startswith("_") or key in included_protected_attributes:
-        dict_y[key] = dictify(value, included_protected_attributes=included_protected_attributes)
+        if omit_none_values != True or value is not None:
+          dict_y[key] = dictify(value, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values)
     return dict_y
   elif isinstance(x, (tuple, list)):
-    return [dictify(y, included_protected_attributes=included_protected_attributes) for y in x]
+    return [dictify(y, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values) for y in x]
   elif isinstance(x, JsonObject):
-    return dictify(x.__dict__, included_protected_attributes=included_protected_attributes)
+    return dictify(x.__dict__, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values)
   else:
     return x
 
 
-def assert_dict_equality(x, y, floating_point_precision=None, key_trace=[]):
-  try:
-    assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
-  except AssertionError:
-    raise
-  x = round_floats(tuples_to_lists(x), floating_point_precision=floating_point_precision)
-  y = round_floats(tuples_to_lists(y), floating_point_precision=floating_point_precision)
-  for key, value in iter(x.items()):
-    other_value = y.get(key, None)
-    if isinstance(value, dict):
-      try:
-        assert_dict_equality(value, other_value, key_trace=key_trace+[key])
-      except AssertionError:
-        logging.error(key)
-        raise
-    elif isinstance(value, list):
-      try:
-        assert len(value) == len(other_value), (key_trace+[key], value, other_value)
-      except AssertionError:
-        logging.error("key: %s", key)
-        raise
-      for index, item in enumerate(value):
-        if isinstance(value, dict):
-          try:
-            assert_dict_equality(item, other_value[index], key_trace=key_trace+[key, index])
-          except AssertionError:
-            logging.error("key: %s, index: %s", key, index)
-            raise
-        else:
-          try:
-              assert item == other_value[index], (key_trace+[key, index], item, other_value[index])
-          except AssertionError:
-            logging.error("key: %s, index: %s", key, index)
-            raise
-    else:
-      try:
-        assert value == other_value, (key_trace+[key], value, other_value, type(value))
-      except AssertionError:
-        logging.error("key: %s", key)
-        raise
+def assert_approx_equals(x, y, floating_point_precision=None, key_trace=None):
+  if key_trace is None:
+    key_trace = []
+  x = round_floats(dictify(x), floating_point_precision=floating_point_precision)
+  y = round_floats(dictify(y), floating_point_precision=floating_point_precision)
+  if isinstance(x, dict):
+    try:
+      assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
+    except AssertionError:
+      raise
+    for key, value in iter(x.items()):
+      other_value = y.get(key, None)
+      assert_approx_equals(value, other_value, key_trace=key_trace + [key])
+  elif isinstance(x, (list, tuple)):
+    assert len(x) == len(y), (key_trace, len(x), len(y))
+    for index, item in enumerate(x):
+      assert_approx_equals(item, y[index], key_trace=key_trace + [index])
+  else:
+    assert x == y, (key_trace, x, y, type(x))
 
 
 def round_floats(o, floating_point_precision):
+  from sanskrit_data.schema.common import JsonObject
   if floating_point_precision is None:
     return o
-  if isinstance(o, float): return round(o, floating_point_precision)
-  if isinstance(o, dict): return {k: round_floats(v, floating_point_precision=floating_point_precision) for k, v in iter(o.items())}
-  if isinstance(o, (list, tuple)): return [round_floats(x, floating_point_precision=floating_point_precision) for x in o]
+  elif isinstance(o, float): return round(o, floating_point_precision)
+  elif isinstance(o, dict): return {k: round_floats(v, floating_point_precision=floating_point_precision) for k, v in iter(o.items())}
+  elif isinstance(o, (list, tuple)): return [round_floats(x, floating_point_precision=floating_point_precision) for x in o]
+  elif isinstance(o, JsonObject):
+    o = deepcopy(o)
+    for k, v in iter(o.__dict__.items()):
+      setattr(o, k, round_floats(v, floating_point_precision=floating_point_precision))
   return o
 
 
@@ -149,7 +137,8 @@ def tree_maker(leaves, path_fn):
       parent = node
       node = node.get(segment, {})
       parent[segment] = node
-    parent[segment] = leaf
+    if len(segments) > 0:
+      parent[segment] = leaf
   
   for leaf in leaves:
     path = path_fn(leaf)
