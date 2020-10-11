@@ -80,10 +80,7 @@ def assert_approx_equals(x, y, floating_point_precision=None, key_trace=None):
   x = round_floats(dictify(x), floating_point_precision=floating_point_precision)
   y = round_floats(dictify(y), floating_point_precision=floating_point_precision)
   if isinstance(x, dict):
-    try:
-      assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
-    except AssertionError:
-      raise
+    assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
     for key, value in iter(x.items()):
       other_value = y.get(key, None)
       assert_approx_equals(value, other_value, key_trace=key_trace + [key])
