@@ -38,7 +38,7 @@ def test_ImageAnnotation_source_auto_set(db_fixture):
 
     updated_annotation = annotation.update_collection(db_interface=db)
     # logging.debug("update result is " + str(updated_annotation))
-    assert(updated_annotation.source.jsonClass == "DataSource")
+    assert(updated_annotation.source.get_wire_typeid() == "DataSource")
 
 
 def test_ImageAnnotation_take_over_while_editing(db_fixture):

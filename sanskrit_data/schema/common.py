@@ -18,7 +18,8 @@ from jsonschema.exceptions import best_match
 from six import string_types
 
 from sanskrit_data import collection_helper, file_helper
-from sanskrit_data.collection_helper import round_floats, tuples_to_lists
+from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_json_object_type, \
+  _set_jsonpickle_type_recursively
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -77,32 +78,6 @@ def recursively_merge_json_schemas(a, b, json_path=""):
     return deepcopy(b)
 
 
-def _set_json_object_type(obj):
-  if isinstance(obj, JsonObject):
-    obj.set_type()
-    for key, value in iter(obj.__dict__.items()):
-      _set_json_object_type(value)
-  elif isinstance(obj, (list, tuple)):
-    for item in obj:
-      _set_json_object_type(item)
-  elif isinstance(obj, dict):
-    for key_inner, value_inner in obj.items():
-      _set_json_object_type(value_inner)
-
-
-def _set_jsonpickle_type_recursively(obj, json_class_index):
-  """Translates jsonClass fields to py/object"""
-  if isinstance(obj, dict):
-    wire_type = obj.pop(TYPE_FIELD, None)
-    if wire_type:
-      obj[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type].__module__ + "." + wire_type
-    for key, value in iter(obj.items()):
-      _set_jsonpickle_type_recursively(obj=value, json_class_index=json_class_index)
-  elif isinstance(obj, (list, tuple)):
-    for item in obj:
-      _set_jsonpickle_type_recursively(obj=item, json_class_index=json_class_index)
-
-
 class JsonObject(object):
   """The base class of all Json-serializable data container classes, with many utility methods."""
 
@@ -136,7 +111,7 @@ class JsonObject(object):
 
   def __init__(self):
     # Dont do: self._id = None . You'll get "_id": null when the object is serialized.
-    self.set_type()
+    # We won't do self.set_type() as it is only useful during serialization. We don't want it to unwittingly affect comparison; and we want to avoid unnecessary assignments.
     self._default_to_none = JsonObject.DEFAULT_TO_NONE__DEFAULT
 
   def __hash__(self):
@@ -169,7 +144,6 @@ class JsonObject(object):
     # logging.debug(new_obj.__class__)
     if _id:
       new_obj._id = str(_id)
-    _set_json_object_type(new_obj)
     return new_obj
 
   @classmethod
@@ -258,20 +232,6 @@ class JsonObject(object):
     setattr(self, TYPE_FIELD, self.__class__.get_wire_typeid())
     # setattr(self, TYPE_FIELD, self.__class__.__name__)
 
-  def set_jsonpickle_type_recursively(self):
-    self.set_type()
-    for key, value in iter(self.__dict__.items()):
-      if isinstance(value, JsonObject):
-        _set_json_object_type(value)
-      elif isinstance(value, list):
-        for item in value:
-          if isinstance(item, JsonObject):
-            item.set_jsonpickle_type_recursively()
-      elif isinstance(value, dict):
-        for key_inner, value_inner in enumerate(value.items()):
-          if isinstance(value_inner, JsonObject):
-            value_inner.set_jsonpickle_type_recursively()
-
   def to_string(self, format="json", floating_point_precision=None, sort_keys=True):
     json_map = self.to_json_map(floating_point_precision=floating_point_precision)
     if format == "json":
@@ -303,7 +263,6 @@ class JsonObject(object):
     So, the type must be properly set.
     Many functions accept such json maps, just as they accept strings.
     """
-    _set_json_object_type(self)
     json_map = collection_helper.dictify(self, omit_none_values=self._default_to_none)
     if self._default_to_none:
       json_map = collection_helper.remove_dict_none_values(json_map)
@@ -360,7 +319,6 @@ class JsonObject(object):
 
   def update_collection(self, db_interface, user=None):
     """Do JSON validation and write to database."""
-    _set_json_object_type(self)
     if getattr(self, "schema", None) is not None:
       self.validate(db_interface=db_interface, user=user)
     updated_doc = db_interface.update_doc(self.to_json_map())
@@ -446,6 +404,7 @@ class JsonObject(object):
 
 class TargetValidationError(Exception):
   def __init__(self, allowed_types, target_obj, targeting_obj):
+    super(TargetValidationError, self).__init__()
     self.allowed_types = allowed_types
     self.target_obj = target_obj
     self.targeting_obj = targeting_obj

@@ -1,4 +1,3 @@
-import logging
 from copy import deepcopy
 
 
@@ -67,7 +66,10 @@ def dictify(x, included_protected_attributes=None, omit_none_values=True):
   elif isinstance(x, (tuple, list)):
     return [dictify(y, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values) for y in x]
   elif isinstance(x, JsonObject):
-    return dictify(x.__dict__, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values)
+    dict_x = dictify(x.__dict__, included_protected_attributes=included_protected_attributes, omit_none_values=omit_none_values)
+    from sanskrit_data.schema.common import TYPE_FIELD
+    dict_x[TYPE_FIELD] = x.get_wire_typeid()
+    return dict_x
   else:
     return x
 
@@ -145,3 +147,48 @@ def tree_maker(leaves, path_fn):
     _insert_to_tree(leaf=leaf, path=path)
   
   return tree
+
+
+def _set_json_object_type(obj):
+  from sanskrit_data.schema.common import JsonObject
+  if isinstance(obj, JsonObject):
+    obj.set_type()
+    for key, value in iter(obj.__dict__.items()):
+      _set_json_object_type(value)
+  elif isinstance(obj, (list, tuple)):
+    for item in obj:
+      _set_json_object_type(item)
+  elif isinstance(obj, dict):
+    for key_inner, value_inner in obj.items():
+      _set_json_object_type(value_inner)
+
+
+def delete_attribute_recursively(obj, attr):
+  if hasattr(obj, attr):
+    delattr(obj, attr)
+    for key, value in iter(obj.__dict__.items()):
+      delete_attribute_recursively(value, attr)
+
+  if isinstance(obj, (list, tuple)):
+    for item in obj:
+      delete_attribute_recursively(item, attr)
+  elif isinstance(obj, dict):
+    for key_inner, value_inner in obj.items():
+      delete_attribute_recursively(value_inner, attr)
+
+
+
+
+def _set_jsonpickle_type_recursively(obj, json_class_index):
+  """Translates jsonClass fields to py/object"""
+  if isinstance(obj, dict):
+    from sanskrit_data.schema.common import TYPE_FIELD
+    wire_type = obj.pop(TYPE_FIELD, None)
+    if wire_type:
+      from sanskrit_data.schema.common import JSONPICKLE_TYPE_FIELD
+      obj[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type].__module__ + "." + wire_type
+    for key, value in iter(obj.items()):
+      _set_jsonpickle_type_recursively(obj=value, json_class_index=json_class_index)
+  elif isinstance(obj, (list, tuple)):
+    for item in obj:
+      _set_jsonpickle_type_recursively(obj=item, json_class_index=json_class_index)
