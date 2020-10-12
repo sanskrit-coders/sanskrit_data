@@ -32,8 +32,8 @@ Similar libraries in various other programming languages are being built:
 - To the extant possible, we should take latter approach to data storage and communication.
 - Where idiosyncratic notations are adapted for various reasons, it is still desirable to collect such definitions in a single module - to facilitate conversion to the standard format.
 
-# For users
-## Installation
+## For users
+### Installation
 - Install this library (Replace pip2 with pip3 as needed)
     - Latest release: `sudo pip3 install sanskrit_data -U`
     - Development copy: `sudo pip3 install git+https://github.com/vedavaapi/sanskrit_data@master -U`
@@ -41,25 +41,28 @@ Similar libraries in various other programming languages are being built:
     - [Web](https://pypi.python.org/pypi/sanskrit_data).
 - Install libraries for the particular database you want to access through the sanskrit_data.db interface (as needed): pymongo, cloudant (for couchdb).
 
-## Usage
+### Usage
 - Please see the generated python sphinx docs in one of the following places:
     - http://sanskrit-data.readthedocs.io
     - [project page](https://sanskrit-coders.github.io/sanskrit_data/build/html/).
     - under docs/build/html/index.html
 - Design considerations for data containers corresponding to the various submodules (such as books and annotations) are given below - or in the corresponding source files.
 
-# For contributors
-## Contact
+### Pytest plugin
+- `pytest_plugins = ["sanskrit_data.testing.pytest_plugin"]`
+
+## For contributors
+### Contact
 Have a problem or question? Please head to [github](https://github.com/vedavaapi/sanskrit_data).
 
-## Packaging
+### Packaging
 * ~/.pypirc should have your pypi login credentials.
 ```
 python3 setup.py bdist_wheel
 twine upload dist/* --skip-existing
 ```
 
-## Document generation
+### Document generation
 - sphinx html docs can be generated with `cd docs; make html`
 - http://sanskrit-data.readthedocs.io/en/latest/sanskrit_data.html should automatically have good updated documentation - unless there are build errors.
 - To update UML diagrams, copy the outputs of the below to docs:

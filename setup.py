@@ -34,7 +34,7 @@ setup(
   # Versions should comply with PEP440.  For a discussion on single-sourcing
   # the version across setup.py and the project code, see
   # https://packaging.python.org/en/latest/single_source_version.html
-  version='0.7.2',
+  version='0.7.3',
 
   description='Standard and idiosyncratic schemata for text, annotation and user data, with a library of validation, (de-)serialization, a database interface and other utilities.',
   long_description=long_description,
@@ -70,6 +70,7 @@ setup(
     # that you indicate whether you support Python 2, Python 3 or both.
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    "Framework :: Pytest"
   ],
 
   # What does your project relate to?
@@ -114,9 +115,10 @@ setup(
   # To provide executable scripts, use entry points in preference to the
   # "scripts" keyword. Entry points provide cross-platform support and allow
   # pip to create the appropriate form of executable for the target platform.
-  # entry_points={
-  #     'console_scripts': [
-  #         'sample=sample:main',
-  #     ],
-  # },
+  entry_points={
+    # 'console_scripts': [
+    #     'sample=sample:main',
+    # ],
+    "sanskrit_data.testing.pytest_plugin": ["name_of_plugin = sanskrit_data.sanskrit_data.testing.pytest_plugin"]
+  },
 )
