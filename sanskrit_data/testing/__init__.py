@@ -13,7 +13,7 @@ def json_compare(actual_object, expected_content_path):
                                 floating_point_precision=4)
         return 
 
-    panchaanga_expected = JsonObject.read_from_file(filename=expected_content_path)
+    expected = JsonObject.read_from_file(filename=expected_content_path)
     try:
         # The below would be actually slower (1min+), and leads to bug output dump in case of failure.
         # assert str_actual == str_expected 
@@ -21,7 +21,7 @@ def json_compare(actual_object, expected_content_path):
         # assert actual == expected
 
         # The below is faster - 20s and produces concise difference.
-        collection_helper.assert_approx_equals(x=actual_object, y=panchaanga_expected, floating_point_precision=4)
+        collection_helper.assert_approx_equals(x=actual_object, y=expected, floating_point_precision=4)
     except:
         # firefox does not identify files not ending with .json as json. Hence not naming .json.local.
         actual_content_path = expected_content_path.replace(".json", "_actual.local.json")

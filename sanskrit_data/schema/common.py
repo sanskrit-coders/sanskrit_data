@@ -18,8 +18,7 @@ from jsonschema.exceptions import best_match
 from six import string_types
 
 from sanskrit_data import collection_helper, file_helper
-from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_json_object_type, \
-  _set_jsonpickle_type_recursively
+from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_jsonpickle_type_recursively
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -162,6 +161,14 @@ class JsonObject(object):
       obj = cls.make_from_dict(jsonpickle.decode(pickle))
       return obj
 
+  def post_load_ops(self):
+    """ A method which is called everytime an object is loaded via :meth:`JsonObject.read_from_file`.
+    
+    This may be necessary for deduplication or filling redundant values which were removed during serialization.
+    :return: 
+    """
+    pass
+
   @classmethod
   def read_from_file(cls, filename, name_to_json_class_index_extra=None, **kwargs):
     """
@@ -180,6 +187,7 @@ class JsonObject(object):
         elif "toml" in format:
           input_dict = toml.loads(fhandle.read())
         obj = cls.make_from_dict(input_dict=input_dict, **kwargs)
+        obj.post_load_ops()
         return obj
     except Exception as e:
       try:
