@@ -239,7 +239,8 @@ class JsonObject(object):
     else:
       return toml.dumps(json_map)
 
-  def __str__(self):
+  def __repr__(self):
+    # __str__ falls back to this, and this is used in printing lists.
     return self.to_string(format="json")
 
   def set_from_dict(self, input_dict):
