@@ -77,8 +77,8 @@ def dictify(x, included_protected_attributes=None, omit_none_values=True):
 def assert_approx_equals(x, y, floating_point_precision=None, key_trace=None):
   if key_trace is None:
     key_trace = []
-  x = round_floats(dictify(x), floating_point_precision=floating_point_precision)
-  y = round_floats(dictify(y), floating_point_precision=floating_point_precision)
+  x = sets_to_lists(round_floats(dictify(x), floating_point_precision=floating_point_precision))
+  y = sets_to_lists(round_floats(dictify(y), floating_point_precision=floating_point_precision))
   if isinstance(x, dict):
     assert x.keys() == y.keys(), (key_trace, sorted(x.keys()), sorted(y.keys()))
     for key, value in iter(x.items()):
@@ -109,6 +109,21 @@ def round_floats(o, floating_point_precision):
 def tuples_to_lists(o):
   if isinstance(o, dict): return {k: tuples_to_lists(v) for k, v in iter(o.items())}
   if isinstance(o, (list, tuple)): return [tuples_to_lists(x) for x in o]
+  return o
+
+
+def sets_to_lists(o):
+  if isinstance(o, dict): return {k: sets_to_lists(v) for k, v in iter(o.items())}
+  if isinstance(o, set):
+    l = list(o)
+    l.sort()
+    return l
+  return o
+
+
+def lists_to_sets(o):
+  if isinstance(o, dict): return {k: lists_to_sets(v) for k, v in iter(o.items())}
+  if isinstance(o, list): return set(o)
   return o
 
 
