@@ -243,7 +243,7 @@ class JsonObject(object):
   def to_string(self, format="json", floating_point_precision=None, sort_keys=True):
     json_map = self.to_json_map(floating_point_precision=floating_point_precision)
     if format == "json":
-      return json.dumps(json_map, sort_keys=sort_keys, indent=2)
+      return json.dumps(json_map, sort_keys=sort_keys, ensure_ascii=False, indent=2)
     else:
       return toml.dumps(json_map)
 
