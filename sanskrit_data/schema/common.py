@@ -12,7 +12,6 @@ from copy import deepcopy
 import jsonpickle
 import jsonschema
 import toml
-import tomlkit
 from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
@@ -20,6 +19,7 @@ from six import string_types
 
 from sanskrit_data import collection_helper, file_helper
 from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_jsonpickle_type_recursively
+from sanskrit_data.toml_helper import MultilinePreferringTomlEncoder
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -246,7 +246,7 @@ class JsonObject(object):
     if format == "json":
       return json.dumps(json_map, sort_keys=sort_keys, ensure_ascii=False, indent=2)
     else:
-      return tomlkit.dumps(json_map)
+      return toml.dumps(json_map, encoder=MultilinePreferringTomlEncoder())
 
   def __repr__(self):
     # __str__ falls back to this, and this is used in printing lists.
