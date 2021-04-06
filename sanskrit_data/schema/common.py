@@ -12,6 +12,7 @@ from copy import deepcopy
 import jsonpickle
 import jsonschema
 import toml
+import tomlkit
 from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
@@ -245,7 +246,7 @@ class JsonObject(object):
     if format == "json":
       return json.dumps(json_map, sort_keys=sort_keys, ensure_ascii=False, indent=2)
     else:
-      return toml.dumps(json_map)
+      return tomlkit.dumps(json_map)
 
   def __repr__(self):
     # __str__ falls back to this, and this is used in printing lists.

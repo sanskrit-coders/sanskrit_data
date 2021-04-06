@@ -2,6 +2,7 @@
 jsonschema==3.2.0
 jsonpickle==1.4.1
 toml==0.10.1
+tomlkit
 bcrypt==3.2.0
 yurl==1.0.0
 six==1.15.0
