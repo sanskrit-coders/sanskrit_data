@@ -4,7 +4,7 @@ from toml.encoder import _dump_str, TomlEncoder, unicode
 def _dump_str_prefer_multiline(v):
   multilines = v.split('\n')
   if len(multilines) > 1:
-    return unicode('"""\n' + v.strip() + '\n"""')
+    return unicode('"""\n' + v.replace('"""', '\\"""').strip() + '\n"""')
   else:
     return _dump_str(v)
 

@@ -34,7 +34,7 @@ setup(
   # Versions should comply with PEP440.  For a discussion on single-sourcing
   # the version across setup.py and the project code, see
   # https://packaging.python.org/en/latest/single_source_version.html
-  version='0.8.1',
+  version='0.8.2',
 
   description='Standard and idiosyncratic schemata for text, annotation and user data, with a library of validation, (de-)serialization, a database interface and other utilities.',
   long_description=long_description,
