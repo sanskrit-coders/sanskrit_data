@@ -16,6 +16,7 @@ from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import best_match
 from six import string_types
+from toml.decoder import TomlDecodeError
 
 from sanskrit_data import collection_helper, file_helper
 from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_jsonpickle_type_recursively
@@ -183,10 +184,16 @@ class JsonObject(object):
     try:
       with open(filename) as fhandle:
         format = file_helper.deduce_format_from_filename(filename)
+        data = fhandle.read()
         if "json" in format:
-          input_dict = jsonpickle.decode(fhandle.read())
+          input_dict = jsonpickle.decode(data)
         elif "toml" in format:
-          input_dict = toml.loads(fhandle.read())
+          try:
+            input_dict = toml.loads(data)
+            # Many bugs above.
+          except TomlDecodeError as e:
+            import qtoml
+            input_dict = qtoml.loads(data)
         obj = cls.make_from_dict(input_dict=input_dict, **kwargs)
         obj.post_load_ops()
         return obj
