@@ -1,5 +1,5 @@
 toml==0.10.1
-qtoml
+qtoml==0.2.4
 
 # JSON dependencies
 jsonschema==3.2.0
