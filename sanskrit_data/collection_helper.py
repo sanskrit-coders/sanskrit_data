@@ -142,6 +142,20 @@ def flatten_dict(o):
   return o
 
 
+def update_with_lists_as_sets(o1, o2):
+  # Does not handle lists of lists, lists of dicts etc.
+  o1 = lists_to_sets(o1)
+  o2 = lists_to_sets(o2)
+  for k, v in o1.items():
+    if k in o2:
+      if isinstance(v, set): 
+        o1[k] = list(set(list(v).append(o2[k]))).sort()
+    elif isinstance(v, dict): o1[k] = update_with_lists_as_sets(v, o2[k])
+    else:
+      o1[k] = o2[k]
+  return o1
+
+
 def tree_maker(leaves, path_fn):
   tree = {}
   def _insert_to_tree(path, leaf):
