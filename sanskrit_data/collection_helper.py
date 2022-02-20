@@ -145,12 +145,16 @@ def flatten_dict(o):
 def update_with_lists_as_sets(o1, o2):
   # Does not handle lists of lists, lists of dicts etc.
   o1 = deepcopy(o1)
-  for k, v in o1.items():
-    if k in o2:
-      if isinstance(v, (list, tuple)): 
+  for k, v in o2.items():
+    if v is None:
+      continue
+    if k in o1 and o1[k] is not None:
+      if isinstance(o1[k], (list, tuple)): 
         # A dict keys are a set which preserve order.
-        o1[k] = list(dict.fromkeys(v.append(o2[k])))
-    elif isinstance(v, dict): o1[k] = update_with_lists_as_sets(v, o2[k])
+        o1[k] = list(dict.fromkeys(o1[k] + o2[k]))
+      elif isinstance(v, dict): o1[k] = update_with_lists_as_sets(o1[k], o2[k])
+      else:
+        o1[k] = o2[k]
     else:
       o1[k] = o2[k]
   return o1
