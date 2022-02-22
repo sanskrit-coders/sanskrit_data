@@ -179,7 +179,7 @@ def tree_maker(leaves, path_fn):
   
   for leaf in leaves:
     path = path_fn(leaf)
-    insert_to_tree(leaf=leaf, path=path)
+    insert_to_tree(tree=tree, leaf=leaf, path=path)
   
   return tree
 
