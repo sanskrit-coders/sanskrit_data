@@ -160,21 +160,26 @@ def update_with_lists_as_sets(o1, o2):
   return o1
 
 
+def insert_to_tree(tree, path, leaf):
+  segments = [x for x in path.split("/") if x != ""]
+  LEAVES_KEY = "_LEAVES"
+  if LEAVES_KEY not in tree:
+    tree[LEAVES_KEY] = []
+  node = tree
+  for segment in segments:
+    parent = node
+    node = node.get(segment, {LEAVES_KEY: []})
+    parent[segment] = node
+  if len(segments) > 0:
+    parent[segment][LEAVES_KEY].append(leaf)
+
+
 def tree_maker(leaves, path_fn):
   tree = {}
-  def _insert_to_tree(path, leaf):
-    segments = [x for x in path.split("/") if x != ""]
-    node = tree
-    for segment in segments:
-      parent = node
-      node = node.get(segment, {})
-      parent[segment] = node
-    if len(segments) > 0:
-      parent[segment] = leaf
   
   for leaf in leaves:
     path = path_fn(leaf)
-    _insert_to_tree(leaf=leaf, path=path)
+    insert_to_tree(leaf=leaf, path=path)
   
   return tree
 
