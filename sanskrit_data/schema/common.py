@@ -905,4 +905,4 @@ def get_schemas(module_in):
 
 # Essential for depickling to work.
 update_json_class_index(sys.modules[__name__])
-logging.debug(json_class_index)
+# logging.debug(json_class_index)
