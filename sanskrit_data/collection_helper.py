@@ -227,3 +227,11 @@ def _set_jsonpickle_type_recursively(obj, json_class_index):
   elif isinstance(obj, (list, tuple)):
     for item in obj:
       _set_jsonpickle_type_recursively(obj=item, json_class_index=json_class_index)
+
+
+def filter_for_keys(dict, keys):
+  out_dict = {}
+  for key, value in dict.items():
+    if key in keys:
+      out_dict[key] = value
+  return out_dict
