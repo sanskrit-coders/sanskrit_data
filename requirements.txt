@@ -1,10 +1,10 @@
-toml==0.10.1
+toml
 qtoml
 
 # JSON dependencies
-jsonschema==3.2.0
-jsonpickle==1.4.1
-bcrypt==3.2.0
-yurl==1.0.0
+jsonschema
+jsonpickle
+bcrypt
+yurl
 six
 
