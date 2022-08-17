@@ -2,7 +2,7 @@ toml
 qtoml
 
 # JSON dependencies
-jsonschema
+jsonschema==4.10.2
 jsonpickle
 bcrypt
 yurl
