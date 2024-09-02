@@ -3,7 +3,7 @@ qtoml
 
 # JSON dependencies
 jsonschema
-jsonpickle
+jsonpickle==3.3.0
 bcrypt
 yurl
 six
