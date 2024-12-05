@@ -6,5 +6,5 @@ jsonschema
 jsonpickle
 bcrypt
 yurl
-six
+six==1.17.0
 
