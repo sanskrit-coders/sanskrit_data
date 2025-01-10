@@ -235,3 +235,18 @@ def filter_for_keys(dict, keys):
     if key in keys:
       out_dict[key] = value
   return out_dict
+
+
+from collections import OrderedDict
+
+class OrderedSet(OrderedDict):
+
+  def add(self, x):
+    self[x] = None
+
+  def extend(self, iterable):
+    for item in iterable:
+      self.add(item)
+
+  def __repr__(self):
+    return f"OrderedSet({list(self.items.keys())})"
