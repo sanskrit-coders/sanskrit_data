@@ -241,6 +241,10 @@ from collections import OrderedDict
 
 class OrderedSet(OrderedDict):
 
+  def __init__(self, iterable=None):
+    if iterable is not None:
+      self.extend(iterable=iterable)
+
   def add(self, x):
     self[x] = None
 
