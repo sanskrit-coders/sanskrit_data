@@ -18,7 +18,7 @@ from jsonschema.exceptions import best_match
 from six import string_types
 from toml.decoder import TomlDecodeError
 
-from sanskrit_data import collection_helper, file_helper
+from sanskrit_data import collection_helper
 from sanskrit_data.collection_helper import round_floats, tuples_to_lists, _set_jsonpickle_type_recursively
 from sanskrit_data.toml_helper import MultilinePreferringTomlEncoder
 
@@ -185,7 +185,7 @@ class JsonObject(object):
       json_class_index.update(name_to_json_class_index_extra)
     try:
       with open(filename) as fhandle:
-        format = file_helper.deduce_format_from_filename(filename)
+        format = ".".join(filename.split(".")[1:])
         data = fhandle.read()
         if "json" in format:
           input_dict = jsonpickle.decode(data)
@@ -216,7 +216,7 @@ class JsonObject(object):
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
-        format = file_helper.deduce_format_from_filename(filename)
+        format = ".".join(filename.split(".")[1:])
         f.write(self.to_string(format=format, floating_point_precision=floating_point_precision, sort_keys=sort_keys))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
