@@ -54,7 +54,7 @@ logging.debug("json_class_index " + json_class_index.__str__())
 def test_json_serialization(caplog):
     caplog.set_level(logging.DEBUG)
 
-    tmp_file_path = os.path.join(TEST_DATA_DIR, "test_round_trip_serialization.json.local")
+    tmp_file_path = os.path.join(TEST_DATA_DIR, "test_round_trip_serialization.toml.local")
     test_obj = DummyClass.from_details(field1=21, field2 = {"2.1": DummyClass2(field1=1)})
     test_obj.dump_to_file(filename=tmp_file_path)
     test_obj_2 = JsonObject.read_from_file(filename=tmp_file_path, name_to_json_class_index_extra=json_class_index)

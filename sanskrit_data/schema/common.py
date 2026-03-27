@@ -216,7 +216,7 @@ class JsonObject(object):
       import os
       os.makedirs(os.path.dirname(filename), exist_ok=True)
       with open(filename, "w") as f:
-        format = ".".join(filename.split(".")[1:])
+        format = ".".join(filename.split(".")[1])
         f.write(self.to_string(format=format, floating_point_precision=floating_point_precision, sort_keys=sort_keys))
     except Exception as e:
       logging.error("Error writing " + filename + " : ".format(e))
